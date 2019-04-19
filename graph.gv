@@ -1,0 +1,17 @@
+digraph J48Tree {
+N0 [label="rain" ]
+N0->N1 [label="= yes"]
+N1 [label="no; (4.0)" shape=box style=filled ]
+N0->N2 [label="= a_little"]
+N2 [label="n_player" ]
+N2->N3 [label="= ok"]
+N3 [label="yes; (2.0)" shape=box style=filled ]
+N2->N4 [label="= non_ok"]
+N4 [label="no; (2.0)" shape=box style=filled ]
+N0->N5 [label="= no"]
+N5 [label="humidity" ]
+N5->N6 [label="= high"]
+N6 [label="no; (2.0)" shape=box style=filled ]
+N5->N7 [label="= low"]
+N7 [label="yes; (2.0)" shape=box style=filled ]
+}

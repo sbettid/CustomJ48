@@ -1,0 +1,13 @@
+rain,humidity,n_player,play;
+yes,high,ok,no;
+yes,high,non_ok,no;
+yes,low,ok,no;
+yes,low,non_ok,no;
+a_little,high,ok,yes;
+a_little,low,ok,yes;
+a_little,high,non_ok,no;
+a_little,low,non_ok,no;
+no,high,ok,no;
+no,high,non_ok,no;
+no,low,ok,yes;
+no,low,non_ok,yes;
