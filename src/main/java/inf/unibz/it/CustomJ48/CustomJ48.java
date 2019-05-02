@@ -131,7 +131,7 @@ public class CustomJ48 extends J48 {
 		id = 1;
 
 		// Confirm everything went smooth
-		System.out.println("Export on the file " + filepath + " completed!");
+		System.out.println("GraphML export on the file " + filepath + " completed!");
 	}
 
 	/**
@@ -277,6 +277,8 @@ public class CustomJ48 extends J48 {
 			myPrinter.print(exportResult);
 
 			myPrinter.close(); // Close the file and return
+			
+			System.out.println("Dot export completed successfully");
 
 		} catch (IOException io) {
 			System.out.println("Error in writing on the output file: " + io.getStackTrace());
@@ -450,6 +452,8 @@ public class CustomJ48 extends J48 {
 			myPrinter.print(text);
 
 			myPrinter.close(); // Close the file and return
+			
+			System.out.println("JSON export completed successfully");
 
 		} catch (IOException io) {
 			System.out.println("Error while writing on the output file: " + io.getMessage());
@@ -488,8 +492,11 @@ public class CustomJ48 extends J48 {
 			if (!pruning || nInstances > 0) { // if we are pruning we check the number of instances in the subtree
 				
 				text.append(i > 0? ",{" : "{");
-				text.append("\"edgeLabel\" : \"" + Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim())
-						+ "\"");
+				String tempLabel = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
+				
+				String edgeLabel = tempLabel.substring(tempLabel.indexOf("= ") + 1);
+
+				text.append("\"edgeLabel\" : \"" + edgeLabel + "\"");
 
 				if (sons[i].isLeaf()) {
 					// If it is a leaf after writing its information we are done
