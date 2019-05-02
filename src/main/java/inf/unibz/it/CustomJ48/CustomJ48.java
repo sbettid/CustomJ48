@@ -494,7 +494,7 @@ public class CustomJ48 extends J48 {
 				text.append(i > 0? ",{" : "{");
 				String tempLabel = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
 				
-				String edgeLabel = tempLabel.substring(tempLabel.indexOf("= ") + 1);
+				String edgeLabel = tempLabel.replaceAll("^= ","");
 
 				text.append("\"edgeLabel\" : \"" + edgeLabel + "\"");
 
