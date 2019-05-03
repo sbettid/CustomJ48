@@ -15,7 +15,7 @@ public class App
     {
     	try {
 			
-    		DataSource source = new DataSource("datasets/trainingData.csv");
+    		DataSource source = new DataSource("datasets/iris.arff");
 
 			Instances data = source.getDataSet();
 
