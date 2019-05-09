@@ -15,7 +15,7 @@ public class App
     {
     	try {
 			
-    		DataSource source = new DataSource("datasets/iris.arff");
+    		DataSource source = new DataSource("datasets/german_credit_data_test.csv");
 
 			Instances data = source.getDataSet();
 
@@ -35,6 +35,7 @@ public class App
 			tree.dotExport("graph.gv", false); //Export tree using the dot format in a gv file
 			
 			tree.JSONExport("graph.json", false); //Export tree using the JSON format for the chatbot
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

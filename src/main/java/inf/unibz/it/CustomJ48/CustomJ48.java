@@ -3,6 +3,7 @@ package inf.unibz.it.CustomJ48;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierSplitModel;
@@ -39,19 +40,17 @@ public class CustomJ48 extends J48 {
 	private int id = 1;
 
 	// #########################################################################################
-	// ## 																					  ##
-	// ## 						EXPORT IN THE GRAPHML FORMAT								  ##
-	// ## 																					  ##
+	// ## ##
+	// ## EXPORT IN THE GRAPHML FORMAT ##
+	// ## ##
 	// #########################################################################################
 
 	/**
 	 * Method to export the given tree in the GraphML format.
 	 * 
-	 * @param filepath
-	 *            path of the output file
-	 * @param pruning
-	 *            boolean value representing if we would like to apply our pruning
-	 *            criteria or not
+	 * @param filepath path of the output file
+	 * @param pruning  boolean value representing if we would like to apply our
+	 *                 pruning criteria or not
 	 */
 	public void exportGraphML(String filepath, boolean pruning) {
 
@@ -138,13 +137,10 @@ public class CustomJ48 extends J48 {
 	 * Private helper method using to export the sons of the root after it has been
 	 * printed.
 	 * 
-	 * @param currentNode
-	 *            The current node analyzed, at the beginning the root node
-	 * @param parentId
-	 *            The id of the parent node
-	 * @param sb
-	 *            The string buffer used in the previous exportGraphML method to
-	 *            append the result of the current visit
+	 * @param currentNode The current node analyzed, at the beginning the root node
+	 * @param parentId    The id of the parent node
+	 * @param sb          The string buffer used in the previous exportGraphML
+	 *                    method to append the result of the current visit
 	 */
 	private void exportGraphML(ClassifierTree currentNode, int parentId, StringBuilder sb, boolean pruning) {
 
@@ -226,16 +222,11 @@ public class CustomJ48 extends J48 {
 	 * Private method used to write the edge from the current node to its parent,
 	 * used both for leaf and non-leaf nodes
 	 * 
-	 * @param localModel
-	 *            The local model of the current node
-	 * @param trainingData
-	 *            The training data at the current node
-	 * @param parentId
-	 *            The id of the parent node
-	 * @param current
-	 *            The id of the current node
-	 * @param sb
-	 *            The string builder used to append the edge
+	 * @param localModel   The local model of the current node
+	 * @param trainingData The training data at the current node
+	 * @param parentId     The id of the parent node
+	 * @param current      The id of the current node
+	 * @param sb           The string builder used to append the edge
 	 */
 	private void writeEdge(ClassifierSplitModel localModel, Instances trainingData, int parentId, int current,
 			StringBuilder sb) {
@@ -252,19 +243,17 @@ public class CustomJ48 extends J48 {
 	}
 
 	// #########################################################################################
-	// ## 																					  ##
-	// ## 						EXPORT IN THE DOT FORMAT 									  ##
-	// ## 																					  ##
+	// ## ##
+	// ## EXPORT IN THE DOT FORMAT ##
+	// ## ##
 	// #########################################################################################
 
 	/**
 	 * Method used to export the built tree in the dot format, with the possibility
 	 * to prune branches reached by no instances of the training data.
 	 * 
-	 * @param filepath
-	 *            Output file path
-	 * @param pruning
-	 *            Whether we would like to prune branches or not
+	 * @param filepath Output file path
+	 * @param pruning  Whether we would like to prune branches or not
 	 */
 	public void dotExport(String filepath, boolean pruning) {
 		try {
@@ -277,7 +266,7 @@ public class CustomJ48 extends J48 {
 			myPrinter.print(exportResult);
 
 			myPrinter.close(); // Close the file and return
-			
+
 			System.out.println("Dot export completed successfully");
 
 		} catch (IOException io) {
@@ -292,11 +281,9 @@ public class CustomJ48 extends J48 {
 	 * node and then calls another helper method that will recurse on the children,
 	 * pruning the branches reached by no instances.
 	 * 
-	 * @param pruning
-	 *            Whether we would like to prune or not.
+	 * @param pruning Whether we would like to prune or not.
 	 * @return returns a string containing the exported tree in the dot format
-	 * @throws Exception
-	 *             if something goes wrong
+	 * @throws Exception if something goes wrong
 	 */
 	private String dotExport(boolean pruning) throws Exception {
 
@@ -329,6 +316,9 @@ public class CustomJ48 extends J48 {
 			}
 			text.append("]\n");
 			// and we call the recursive method on the root to export its sons
+			// TODO: change here, we recur only on a son that either is a leaf or has more
+			// than one option,
+			// otherwise we skip to the next one
 			dotExport(m_root, 0, text, pruning);
 		}
 
@@ -339,16 +329,12 @@ public class CustomJ48 extends J48 {
 	 * Helper method that recurs on the children node of the current node, exporting
 	 * them in the dot format.
 	 * 
-	 * @param currentNode
-	 *            The current node analyzed
-	 * @param parentId
-	 *            The id of the parent nodes
-	 * @param text
-	 *            String buffer used to append the information about this subtree
-	 * @param pruning
-	 *            Whether we are pruning or not.
-	 * @throws Exception
-	 *             If something goes wrong
+	 * @param currentNode The current node analyzed
+	 * @param parentId    The id of the parent nodes
+	 * @param text        String buffer used to append the information about this
+	 *                    subtree
+	 * @param pruning     Whether we are pruning or not.
+	 * @throws Exception If something goes wrong
 	 */
 	private void dotExport(ClassifierTree currentNode, int parentId, StringBuffer text, boolean pruning)
 			throws Exception {
@@ -368,9 +354,25 @@ public class CustomJ48 extends J48 {
 
 				// System.out.println("At the current node : " + nInstances + "instances");
 
-				// We write the node with its id
-				text.append("N" + parentId + "->" + "N" + id + " [label=\""
-						+ Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim()) + "\"]\n");
+				// We write the node with its id only if the son is either a leaf or has more
+				// than one child,
+				// otherwise we set the skip variable to true
+
+				boolean skip = false; // Are we going to skip the son to go directly to the grandson?
+				
+				if (pruning && !sons[i].isLeaf()) {
+					
+					if (notEnoughChildren(sons[i])) {
+						skip = true;
+					}
+					
+					//System.out.println("DEBUG: enough children? " + notEnoughChildren(sons[i]) );
+				}
+
+				if (!skip)
+					text.append("N" + parentId + "->" + "N" + id + " [label=\""
+							+ Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim()) + "\"]\n");
+
 				// and its information
 
 				if (sons[i].isLeaf()) {
@@ -384,39 +386,68 @@ public class CustomJ48 extends J48 {
 					text.append("]\n");
 					id++;
 				} else {
-					// otherwise we recur on the sons
-					text.append("N" + id + " [label=\""
-							+ Utils.backQuoteChars(sons[i].getLocalModel().leftSide(trainingData)) + "\" ");
-					if (trainingData != null && trainingData.numInstances() > 0) {
-						text.append("data =\n" + sons[i].getTrainingData() + "\n");
-						text.append(",\n");
+
+					if (!skip) {
+						// otherwise we recur on the sons
+						text.append("N" + id + " [label=\""
+								+ Utils.backQuoteChars(sons[i].getLocalModel().leftSide(trainingData)) + "\" ");
+						if (trainingData != null && trainingData.numInstances() > 0) {
+							text.append("data =\n" + sons[i].getTrainingData() + "\n");
+							text.append(",\n");
+						}
+						text.append("]\n");
+						id++;
+						
+						dotExport(sons[i], id - 1, text, pruning);
+					} else {
+					
+						// TODO: changed here, if skip is true we use as parent id the current one
+						// otherwise it is okay like that
+						dotExport(sons[i], parentId, text, pruning);
 					}
-					text.append("]\n");
-					id++;
-					dotExport(sons[i], id - 1, text, pruning);
 				}
 			}
 		}
 	}
+	
+	/**
+	 * Method used to test if more than one child will survive the pruning process, this affects the tree structure
+	 * since we try to short-circuit such paths
+	 * @param node The node we are testing, checking its children
+	 * @return true if more than one child of node will survive, false otherwise
+	 */
+	private boolean notEnoughChildren(ClassifierTree node) {
+		
+		int nSurvivors = 0;
+		ClassifierTree[] sons = node.getSons();
+		for(int i = 0; i < sons.length; i++) {
+			
+			if(sons[i].getLocalModel().distribution().total() > 0)
+				nSurvivors++;
+			
+			if(nSurvivors > 1)
+				return true;
+		}
+		
+		return false;
+		
+	}
 
 	// #########################################################################################
-	// ## 																					  ##
-	// ## 								EXPORT IN JSON 										  ##
-	// ## 						(for chatbot creation purposes) 							  ##
+	// ## ##
+	// ## EXPORT IN JSON ##
+	// ## (for chatbot creation purposes) ##
 	// #########################################################################################
 
 	/**
-	 * Method used, as the previous ones, to export the tree in a particular format (github link will follow),
-	 * giving the chance to prune subtrees not reached by any instance. This time we
-	 * use a particular JSON format, in order to pass the exported file to the
-	 * Node.js application in charge of creating the chatbot.
+	 * Method used, as the previous ones, to export the tree in a particular format
+	 * (github link will follow), giving the chance to prune subtrees not reached by
+	 * any instance. This time we use a particular JSON format, in order to pass the
+	 * exported file to the Node.js application in charge of creating the chatbot.
 	 * 
-	 * @param filepath
-	 *            Path of the output file
-	 * @param pruning
-	 *            Whether we would like to prune subtrees
-	 * @throws Exception
-	 *             If something goes wrong
+	 * @param filepath Path of the output file
+	 * @param pruning  Whether we would like to prune subtrees
+	 * @throws Exception If something goes wrong
 	 */
 	public void JSONExport(String filepath, boolean pruning) {
 
@@ -452,7 +483,7 @@ public class CustomJ48 extends J48 {
 			myPrinter.print(text);
 
 			myPrinter.close(); // Close the file and return
-			
+
 			System.out.println("JSON export completed successfully");
 
 		} catch (IOException io) {
@@ -466,14 +497,10 @@ public class CustomJ48 extends J48 {
 	 * Helper method used to export the sons of the current node, if they satisfy
 	 * the pruning condition
 	 * 
-	 * @param currentNode
-	 *            Current node analyzed
-	 * @param text
-	 *            String buffer used to append the exported nodes
-	 * @param pruning
-	 *            Whether we would like to prune or not
-	 * @throws Exception
-	 *             If something goes wrong
+	 * @param currentNode Current node analyzed
+	 * @param text        String buffer used to append the exported nodes
+	 * @param pruning     Whether we would like to prune or not
+	 * @throws Exception If something goes wrong
 	 */
 	private void JSONExport(ClassifierTree currentNode, StringBuffer text, boolean pruning) throws Exception {
 
@@ -490,11 +517,11 @@ public class CustomJ48 extends J48 {
 																				// node
 
 			if (!pruning || nInstances > 0) { // if we are pruning we check the number of instances in the subtree
-				
-				text.append(i > 0? ",{" : "{");
+
+				text.append(i > 0 ? ",{" : "{");
 				String tempLabel = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
-				
-				String edgeLabel = tempLabel.replaceAll("^= ","");
+
+				String edgeLabel = tempLabel.replaceAll("^= ", "");
 
 				text.append("\"edgeLabel\" : \"" + edgeLabel + "\"");
 
@@ -509,6 +536,9 @@ public class CustomJ48 extends J48 {
 
 					text.append(",\"children\": [");
 
+					// TODO: changes should be performed here
+					// if the son has only one alternative surviving pruning let's recur directly on
+					// him
 					JSONExport(sons[i], text, pruning);
 
 					text.append("]");
