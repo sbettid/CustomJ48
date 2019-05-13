@@ -344,7 +344,15 @@ public class CustomJ48 extends J48 {
 		// Get the model and the data at the current node
 		ClassifierSplitModel localModel = currentNode.getLocalModel();
 		Instances trainingData = currentNode.getTrainingData();
-
+		
+		
+		//If we are pruning we check if we can enter the loop to write the sons or, in case there is 
+		//an only child surviving the pruning action, we can directly recur on him. 
+		//TODO
+		if(pruning)
+			enoughChildrenSurviving(currentNode, parentId, text, pruning);
+		
+		
 		for (int i = 0; i < sons.length; i++) { // export each son and corresponding subtree
 
 			double nInstances = sons[i].getLocalModel().distribution().total(); // get the number of instances at the
@@ -354,22 +362,6 @@ public class CustomJ48 extends J48 {
 
 				// System.out.println("At the current node : " + nInstances + "instances");
 
-				// We write the node with its id only if the son is either a leaf or has more
-				// than one child,
-				// otherwise we set the skip variable to true
-
-				boolean skip = false; // Are we going to skip the son to go directly to the grandson?
-				
-				if (pruning && !sons[i].isLeaf()) {
-					
-					if (notEnoughChildren(sons[i])) {
-						skip = true;
-					}
-					
-					//System.out.println("DEBUG: enough children? " + notEnoughChildren(sons[i]) );
-				}
-
-				if (!skip)
 					text.append("N" + parentId + "->" + "N" + id + " [label=\""
 							+ Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim()) + "\"]\n");
 
@@ -387,7 +379,7 @@ public class CustomJ48 extends J48 {
 					id++;
 				} else {
 
-					if (!skip) {
+					
 						// otherwise we recur on the sons
 						text.append("N" + id + " [label=\""
 								+ Utils.backQuoteChars(sons[i].getLocalModel().leftSide(trainingData)) + "\" ");
@@ -399,38 +391,47 @@ public class CustomJ48 extends J48 {
 						id++;
 						
 						dotExport(sons[i], id - 1, text, pruning);
-					} else {
 					
-						// TODO: changed here, if skip is true we use as parent id the current one
-						// otherwise it is okay like that
-						dotExport(sons[i], parentId, text, pruning);
-					}
 				}
 			}
 		}
 	}
 	
 	/**
-	 * Method used to test if more than one child will survive the pruning process, this affects the tree structure
-	 * since we try to short-circuit such paths
-	 * @param node The node we are testing, checking its children
-	 * @return true if more than one child of node will survive, false otherwise
+	 * Method used to check if more than one son will survive the pruning operation, in case it is applied. 
+	 * If more than one child survive, we continue with the loop in the main procedure and we export every children, 
+	 * otherwise we just recur on the only child, skipping so the current one that is so unnecessary
+	 * 
+	 * @param node the current node we would like to analyze
+	 * @param parentId its id
+	 * @param text where we are appending the export text of the nodes
+	 * @param pruning Are we pruning?
+	 * @throws Exception thrown if it is received by the weka library
 	 */
-	private boolean notEnoughChildren(ClassifierTree node) {
+	private void enoughChildrenSurviving(ClassifierTree node, int parentId, StringBuffer text, boolean pruning) throws Exception {
 		
-		int nSurvivors = 0;
+		ClassifierTree onlyNode = null;
+		
 		ClassifierTree[] sons = node.getSons();
-		for(int i = 0; i < sons.length; i++) {
+		
+		for(ClassifierTree son : sons) {
 			
-			if(sons[i].getLocalModel().distribution().total() > 0)
-				nSurvivors++;
-			
-			if(nSurvivors > 1)
-				return true;
+			if(son.getLocalModel().distribution().total() > 0) {
+				
+				if(onlyNode != null) {
+					onlyNode = null;
+					break;
+				}
+				else {
+					onlyNode = son;
+				}
+				
+			}
 		}
 		
-		return false;
-		
+		if(onlyNode != null)
+			dotExport(onlyNode, parentId, text, pruning);
+
 	}
 
 	// #########################################################################################

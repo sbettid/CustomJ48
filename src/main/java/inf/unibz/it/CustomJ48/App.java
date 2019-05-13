@@ -15,7 +15,7 @@ public class App
     {
     	try {
 			
-    		DataSource source = new DataSource("datasets/german_credit_data_test.csv");
+    		DataSource source = new DataSource("datasets/training.csv");
 
 			Instances data = source.getDataSet();
 
