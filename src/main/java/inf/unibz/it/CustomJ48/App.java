@@ -15,7 +15,7 @@ public class App
     {
     	try {
 			
-    		DataSource source = new DataSource("datasets/training.csv");
+    		DataSource source = new DataSource("datasets/weather.nominal.arff");
 
 			Instances data = source.getDataSet();
 
