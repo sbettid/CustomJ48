@@ -12,9 +12,9 @@ Trees generated using the J48 class can be exported in three different formats:
 - DOT format, used also as default by Weka
 - JSON format, based on the following specification: 
 
-`{label: “node1”, children: [{ edgeLabel: “to_node_2”, label: node_2 }, { edgeLabel: “to_node_3”, label: “node_3”, children […]  }]}`
+    `{label: “node1”, children: [{ edgeLabel: “to_node_2”, label: node_2 }, { edgeLabel: “to_node_3”,       label: “node_3”, children […]  }]}`
 
-The tree is specified in a recursive way, where each node, except the leafs, contains the list of its children nodes. Moreover, every node has a label attribute specifying its label/question and this property will be the one asked to the user during the conversation. All nodes (beside the root) have an edgeLabel property, which rapresents the label of the edge from the parent node and, in our case, also the answer to the parent's question that will determine the next node in the path.
+    The tree is specified in a recursive way, where each node, except the leafs, contains the list of      its children nodes. Moreover, every node has a label attribute specifying its label/question and       this property will be the one asked to the user during the conversation. All nodes (beside the         root) have an edgeLabel property, which rapresents the label of the edge from the parent node and,     in our case, also the answer to the parent's question that will determine the next node in the         path.
 
 
 Independently from chosen export format, it is possible to activate the pruning capability. 
