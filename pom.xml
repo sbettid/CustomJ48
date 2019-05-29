@@ -25,7 +25,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>inf.unibz.it.CustomJ48.App</mainClass>
+              <mainClass>inf.unibz.it.CustomJ48.CustomJ48</mainClass>
             </manifest>
           </archive>
         </configuration>
