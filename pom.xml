@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>inf.unibz.it</groupId>
-	<artifactId>CustomJ48</artifactId>
+	<artifactId>customj48</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -18,19 +18,23 @@
 
 	<build>
     <plugins>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.2</version>
         <configuration>
           <archive>
             <manifest>
-              <addClasspath>true</addClasspath>
               <mainClass>inf.unibz.it.CustomJ48.CustomJ48</mainClass>
             </manifest>
           </archive>
         </configuration>
       </plugin>
+      
+      
     </plugins>
+    
   </build>
 
 	<dependencies>
@@ -48,4 +52,5 @@
 		</dependency>
 
 	</dependencies>
+	
 </project>

@@ -34,7 +34,7 @@ import weka.core.Utils;
  *         The dot format is used in its standard specification and therefore it
  *         is compatible with all dot visualizers
  */
-public class ExportMethods extends J48 {
+public class CustomJ48Tree extends J48 {
 
 	// Id used to uniquely identify every node in the tree
 	private int id = 1;
