@@ -52,10 +52,10 @@ public class CustomJ48 extends J48 {
 	 * @param pruning  boolean value representing if we would like to apply our
 	 *                 pruning criteria or not
 	 */
-	public void exportGraphML(String filepath, boolean pruning) {
+	public void exportGraphML(PrintWriter writer, boolean pruning) {
 
 		// String builder used to store the content of the exported file
-		StringBuilder outputText = new StringBuilder();
+		StringBuffer outputText = new StringBuffer();
 
 		// Writing graph attributes and head of the document
 		outputText.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -115,22 +115,13 @@ public class CustomJ48 extends J48 {
 		outputText.append("</graphml>\n");
 
 		// Writing everything on the user's specified file
-		try {
-			PrintWriter myPrinter = new PrintWriter(new FileWriter(filepath));
-
-			myPrinter.print(outputText);
-
-			myPrinter.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		writeOnStream(writer, outputText);
 
 		// Resetting variables
 		id = 1;
 
 		// Confirm everything went smooth
-		System.out.println("GraphML export on the file " + filepath + " completed!");
+		System.out.println("GraphML export completed!");
 	}
 
 	/**
@@ -142,7 +133,7 @@ public class CustomJ48 extends J48 {
 	 * @param sb          The string buffer used in the previous exportGraphML
 	 *                    method to append the result of the current visit
 	 */
-	private void exportGraphML(ClassifierTree currentNode, int parentId, StringBuilder sb, boolean pruning) {
+	private void exportGraphML(ClassifierTree currentNode, int parentId, StringBuffer sb, boolean pruning) {
 
 		try {
 
@@ -229,7 +220,7 @@ public class CustomJ48 extends J48 {
 	 * @param sb           The string builder used to append the edge
 	 */
 	private void writeEdge(ClassifierSplitModel localModel, Instances trainingData, int parentId, int current,
-			StringBuilder sb) {
+			StringBuffer sb) {
 
 		// Writing edge between current node and its son
 		sb.append("<edge id=\"e" + id + " \" source=\"" + parentId + "\" target=\"" + id + "\" >\n");
@@ -255,17 +246,12 @@ public class CustomJ48 extends J48 {
 	 * @param filepath Output file path
 	 * @param pruning  Whether we would like to prune branches or not
 	 */
-	public void dotExport(String filepath, boolean pruning) {
+	public void dotExport(PrintWriter writer, boolean pruning) {
 		try {
 			// Export the tree
-			String exportResult = dotExport(pruning);
+			StringBuffer exportResult = dotExport(pruning);
 
-			// Writing everything on the user's specified file
-			PrintWriter myPrinter = new PrintWriter(new FileWriter(filepath));
-
-			myPrinter.print(exportResult);
-
-			myPrinter.close(); // Close the file and return
+			writeOnStream(writer, exportResult);
 
 			System.out.println("Dot export completed successfully");
 
@@ -285,7 +271,7 @@ public class CustomJ48 extends J48 {
 	 * @return returns a string containing the exported tree in the dot format
 	 * @throws Exception if something goes wrong
 	 */
-	private String dotExport(boolean pruning) throws Exception {
+	private StringBuffer dotExport(boolean pruning) throws Exception {
 
 		// Create a new string buffer to append all information about the tree
 		StringBuffer text = new StringBuffer();
@@ -321,8 +307,10 @@ public class CustomJ48 extends J48 {
 			// otherwise we skip to the next one
 			dotExport(m_root, 0, text, pruning);
 		}
-
-		return text.toString() + "}\n";
+		
+		text.append("}\n");
+		
+		return text;
 	}
 
 	/**
@@ -450,7 +438,7 @@ public class CustomJ48 extends J48 {
 	 * @param pruning  Whether we would like to prune subtrees
 	 * @throws Exception If something goes wrong
 	 */
-	public void JSONExport(String filepath, boolean pruning) {
+	public void JSONExport(PrintWriter writer, boolean pruning) {
 
 		try {
 			StringBuffer text = new StringBuffer();
@@ -478,13 +466,8 @@ public class CustomJ48 extends J48 {
 
 			text.append("}");
 
-			// Writing everything on the user's specified file
-			PrintWriter myPrinter = new PrintWriter(new FileWriter(filepath));
-
-			myPrinter.print(text);
-
-			myPrinter.close(); // Close the file and return
-
+			writeOnStream(writer, text);
+			
 			System.out.println("JSON export completed successfully");
 
 		} catch (IOException io) {
@@ -547,5 +530,18 @@ public class CustomJ48 extends J48 {
 				text.append("}");
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @param writer
+	 * @param sb
+	 */
+	private void writeOnStream(PrintWriter writer, StringBuffer sb) {
+		
+		writer.print(sb);
+		
+		writer.close();
+		
 	}
 }
