@@ -1,0 +1,7 @@
+plant-stand,temp,hail,crop-hist,severity,germination,plant-growth,class
+normal,norm,yes,diff-lst-year,pot-severe,80-89,norm,alternarialeaf-spot
+normal,norm,yes,diff-lst-year,pot-severe,90-100,norm,alternarialeaf-spot
+lt-normal,norm,yes,same-lst-sev-yrs,pot-severe,lt-80,norm,frog-eye-leaf-spot
+normal,norm,yes,same-lst-yr,minor,90-100,norm,frog-eye-leaf-spot
+normal,norm,no,diff-lst-year,pot-severe,80-89,norm,frog-eye-leaf-spot
+lt-normal,gt-norm,no,same-lst-two-yrs,pot-severe,lt-80,abnorm,frog-eye-leaf-spot

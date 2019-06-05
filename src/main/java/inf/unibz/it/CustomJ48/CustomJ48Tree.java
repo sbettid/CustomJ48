@@ -52,7 +52,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  boolean value representing if we would like to apply our
 	 *                 pruning criteria or not
 	 */
-	public void exportGraphML(PrintWriter writer, boolean pruning) {
+	public void exportGraphML(PrintWriter writer, boolean pruning, boolean escapeChars) {
 
 		// String builder used to store the content of the exported file
 		StringBuffer outputText = new StringBuffer();
@@ -115,7 +115,7 @@ public class CustomJ48Tree extends J48 {
 		outputText.append("</graphml>\n");
 
 		// Writing everything on the user's specified file
-		writeOnStream(writer, outputText);
+		writeOnStream(writer, outputText, escapeChars);
 
 		// Resetting variables
 		id = 1;
@@ -246,12 +246,12 @@ public class CustomJ48Tree extends J48 {
 	 * @param filepath Output file path
 	 * @param pruning  Whether we would like to prune branches or not
 	 */
-	public void dotExport(PrintWriter writer, boolean pruning) {
+	public void dotExport(PrintWriter writer, boolean pruning, boolean escapeChars) {
 		try {
 			// Export the tree
 			StringBuffer exportResult = dotExport(pruning);
 
-			writeOnStream(writer, exportResult);
+			writeOnStream(writer, exportResult, escapeChars);
 
 			System.out.println("Dot export completed successfully");
 
@@ -438,7 +438,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  Whether we would like to prune subtrees
 	 * @throws Exception If something goes wrong
 	 */
-	public void JSONExport(PrintWriter writer, boolean pruning) {
+	public void JSONExport(PrintWriter writer, boolean pruning, boolean escapeChars) {
 
 		try {
 			StringBuffer text = new StringBuffer();
@@ -466,7 +466,7 @@ public class CustomJ48Tree extends J48 {
 
 			text.append("}");
 
-			writeOnStream(writer, text);
+			writeOnStream(writer, text, escapeChars);
 			
 			System.out.println("JSON export completed successfully");
 
@@ -537,9 +537,28 @@ public class CustomJ48Tree extends J48 {
 	 * @param writer
 	 * @param sb
 	 */
-	private void writeOnStream(PrintWriter writer, StringBuffer sb) {
+	private void writeOnStream(PrintWriter writer, StringBuffer sb, boolean escapeChars) {
 		
-		writer.print(sb);
+		
+		
+		if(escapeChars) {
+			String res = sb.toString();
+			
+			String os = System.getProperty("os.name").toLowerCase();
+			if (os.contains("win")){
+			    //Operating system is based on Windows
+				res = res.replace("\"", "\"\"");
+			}
+			else if (os.contains("osx") || os.contains("nix") || os.contains("aix") || os.contains("nux")){
+			    //Operating system is Apple OSX based
+				res = res.replace("\"", "\\\"");
+			}      
+			
+			writer.print(res);
+			
+		} else {
+			writer.print(sb);
+		}
 		
 		writer.close();
 		
