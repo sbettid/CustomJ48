@@ -2,6 +2,7 @@ package inf.unibz.it.CustomJ48;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.logging.LogManager;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -26,6 +27,9 @@ public class CustomJ48 {
 	}
 	
 	public static void main(String[] args) {
+		
+		LogManager.getLogManager().reset(); //Prevent the system from continuously writing logs to the console
+		
 		// Since it is a console application let's prepare the options that require an
 		// argument
 		// We need the user to specify the path of the dataset
