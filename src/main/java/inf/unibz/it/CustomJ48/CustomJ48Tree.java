@@ -549,10 +549,10 @@ public class CustomJ48Tree extends J48 {
 			    //Operating system is based on Windows
 				res = res.replace("\"", "\"\"");
 			}
-			else if (os.contains("osx")){
+			/*else if (os.contains("osx")){
 			    //Operating system is Apple OSX based
 				res = res.replace("\"", "\\\"");
-			}      
+			} */     
 			
 			writer.print(res);
 			
