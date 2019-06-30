@@ -52,7 +52,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  boolean value representing if we would like to apply our
 	 *                 pruning criteria or not
 	 */
-	public void exportGraphML(PrintWriter writer, boolean pruning, boolean escapeChars) {
+	public void exportGraphML(PrintWriter writer, boolean pruning) {
 
 		// String builder used to store the content of the exported file
 		StringBuffer outputText = new StringBuffer();
@@ -115,7 +115,9 @@ public class CustomJ48Tree extends J48 {
 		outputText.append("</graphml>\n");
 
 		// Writing everything on the user's specified file
-		writeOnStream(writer, outputText, escapeChars);
+		//writeOnStream(writer, outputText, escapeChars);
+		writer.print(outputText);
+		writer.close();
 
 		// Resetting variables
 		id = 1;
@@ -246,13 +248,14 @@ public class CustomJ48Tree extends J48 {
 	 * @param filepath Output file path
 	 * @param pruning  Whether we would like to prune branches or not
 	 */
-	public void dotExport(PrintWriter writer, boolean pruning, boolean escapeChars) {
+	public void dotExport(PrintWriter writer, boolean pruning) {
 		try {
 			// Export the tree
 			StringBuffer exportResult = dotExport(pruning);
 
-			writeOnStream(writer, exportResult, escapeChars);
-
+			//writeOnStream(writer, exportResult, escapeChars);
+			writer.print(exportResult);
+			writer.close();
 			System.out.println("Dot export completed successfully");
 
 		} catch (IOException io) {
@@ -438,7 +441,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  Whether we would like to prune subtrees
 	 * @throws Exception If something goes wrong
 	 */
-	public void JSONExport(PrintWriter writer, boolean pruning, boolean escapeChars) {
+	public void JSONExport(PrintWriter writer, boolean pruning) {
 
 		try {
 			StringBuffer text = new StringBuffer();
@@ -466,7 +469,10 @@ public class CustomJ48Tree extends J48 {
 
 			text.append("}");
 
-			writeOnStream(writer, text, escapeChars);
+			//writeOnStream(writer, text, escapeChars);
+			
+			writer.print(text);
+			writer.close();
 			
 			System.out.println("JSON export completed successfully");
 
@@ -532,35 +538,5 @@ public class CustomJ48Tree extends J48 {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param writer
-	 * @param sb
-	 */
-	private void writeOnStream(PrintWriter writer, StringBuffer sb, boolean escapeChars) {
-		
-		
-		
-		if(escapeChars) {
-			String res = sb.toString();
-			
-//			String os = System.getProperty("os.name").toLowerCase();
-//			if (os.contains("win")){
-//			    //Operating system is based on Windows
-//				res = res.replace("\"", "\"\"");
-//			}
-			/*else if (os.contains("osx")){
-			    //Operating system is Apple OSX based
-				res = res.replace("\"", "\\\"");
-			} */     
-			
-			writer.print(res);
-			
-		} else {
-			writer.print(sb);
-		}
-		
-		writer.close();
-		
-	}
+
 }

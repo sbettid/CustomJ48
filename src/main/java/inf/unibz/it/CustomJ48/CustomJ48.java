@@ -80,12 +80,12 @@ public class CustomJ48 {
 
 			// Let's define the printwriter instance, console or file?
 			PrintWriter writer;
-			boolean escapeChars = false;
+			
 			if (line.hasOption("f")) {
 				writer = new PrintWriter(line.getOptionValue("f"));
 			} else {
 				writer = new PrintWriter(System.out);
-				escapeChars = true;
+				
 			}
 
 			boolean pruning = false; // we set the pruning to the default value
@@ -131,12 +131,12 @@ public class CustomJ48 {
 			switch(export) {
 				
 			case GRAPHML: 
-				tree.exportGraphML(writer, pruning, escapeChars);
+				tree.exportGraphML(writer, pruning);
 				break;
 			case JSON: 
-				tree.JSONExport(writer, pruning, escapeChars);
+				tree.JSONExport(writer, pruning);
 			default: 
-				tree.dotExport(writer, pruning, escapeChars);
+				tree.dotExport(writer, pruning);
 				break;
 				
 			}
