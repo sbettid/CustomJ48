@@ -46,12 +46,14 @@ here on GitLab at the following address [address goes here]. Once downloaded, yo
 
 The software is a command line application that supports the following parameters: 
 
-`usage: customj48
+```
+usage: customj48
 -d <dataset>   Specifies the path of the dataset (REQUIRED)
 -e <format>    specify the export format (graphml, dot, json). Default is: dot
 -f <file>      Output the export code to the given file instead of using the console
 -h             Print this help message
--p             Enable the pruning feature`
+-p             Enable the pruning feature
+```
 
 The `-d` option is the only one required, it specifies the dataset file that will be used to build the decison tree. 
 The accepted formats are all the ones accepted by the Weka library and therefore both ARFF and CSV. 
