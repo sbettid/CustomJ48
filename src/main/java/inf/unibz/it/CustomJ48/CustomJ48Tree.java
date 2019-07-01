@@ -471,7 +471,7 @@ public class CustomJ48Tree extends J48 {
 
 			//writeOnStream(writer, text, escapeChars);
 			
-			writer.print(text);
+			writer.println(text);
 			writer.close();
 			
 			System.out.println("JSON export completed successfully");
