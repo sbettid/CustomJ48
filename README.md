@@ -25,9 +25,6 @@ In the scope of our project, the pruning capability was necessary because the al
 
 However, in our chatbot creation case, we assumed that the data set contains all possible legal combinations and therefore, such branches, were not desired and would have led to a misleading tree. For this reason, the different export functions that were encoded allow a parameter that enables the pruning of branches reached by no instances as soon as they are discovered.
 
-At this point, the pruning feature introduced a new potential inconvenient. Some node could have most of their branches cut off by the pruning procedure with only one of them surviving. The path that has to be taken at that point becomes trivial and would only include an unnecessary step. 
-
-For this reason, the export functions were modified to include a “short circuiting feature” that skips nodes with only one branch surviving the pruning operation (in case the latter one is active, clearly) recurring directly on the grandchild instead.
 
 ## Installation
 

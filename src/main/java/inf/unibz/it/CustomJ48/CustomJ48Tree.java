@@ -305,9 +305,6 @@ public class CustomJ48Tree extends J48 {
 			}
 			text.append("]\n");
 			// and we call the recursive method on the root to export its sons
-			// TODO: change here, we recur only on a son that either is a leaf or has more
-			// than one option,
-			// otherwise we skip to the next one
 			dotExport(m_root, 0, text, pruning);
 		}
 		
@@ -335,13 +332,6 @@ public class CustomJ48Tree extends J48 {
 		// Get the model and the data at the current node
 		ClassifierSplitModel localModel = currentNode.getLocalModel();
 		Instances trainingData = currentNode.getTrainingData();
-		
-		
-		//If we are pruning we check if we can enter the loop to write the sons or, in case there is 
-		//an only child surviving the pruning action, we can directly recur on him. 
-		//TODO
-		if(pruning)
-			enoughChildrenSurviving(currentNode, parentId, text, pruning);
 		
 		
 		for (int i = 0; i < sons.length; i++) { // export each son and corresponding subtree
@@ -388,42 +378,7 @@ public class CustomJ48Tree extends J48 {
 		}
 	}
 	
-	/**
-	 * Method used to check if more than one son will survive the pruning operation, in case it is applied. 
-	 * If more than one child survive, we continue with the loop in the main procedure and we export every children, 
-	 * otherwise we just recur on the only child, skipping so the current one that is so unnecessary
-	 * 
-	 * @param node the current node we would like to analyze
-	 * @param parentId its id
-	 * @param text where we are appending the export text of the nodes
-	 * @param pruning Are we pruning?
-	 * @throws Exception thrown if it is received by the weka library
-	 */
-	private void enoughChildrenSurviving(ClassifierTree node, int parentId, StringBuffer text, boolean pruning) throws Exception {
-		
-		ClassifierTree onlyNode = null;
-		
-		ClassifierTree[] sons = node.getSons();
-		
-		for(ClassifierTree son : sons) {
-			
-			if(son.getLocalModel().distribution().total() > 0) {
-				
-				if(onlyNode != null) {
-					onlyNode = null;
-					break;
-				}
-				else {
-					onlyNode = son;
-				}
-				
-			}
-		}
-		
-		if(onlyNode != null)
-			dotExport(onlyNode, parentId, text, pruning);
 
-	}
 
 	// #########################################################################################
 	// ## ##
@@ -526,9 +481,7 @@ public class CustomJ48Tree extends J48 {
 
 					text.append(",\"children\": [");
 
-					// TODO: changes should be performed here
-					// if the son has only one alternative surviving pruning let's recur directly on
-					// him
+					//and we analyze the son
 					JSONExport(sons[i], text, pruning);
 
 					text.append("]");
