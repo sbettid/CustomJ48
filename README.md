@@ -34,7 +34,7 @@ There are two ways to use this application:
 here on GitLab at the following address [address goes here]. Once downloaded, you can simply launch it with the java command `java -jar customJ48.jar -d your_dataset` specifying after the name of the file the desired options (more on that in the [Usage section](#usage)).
 
 2. On the other hand, if you would like to modify the source code, feel free to do it! The J48 application requires Weka 3.8.3 stable. Dependencies have all been managed using Maven and therefore you can install and run the software following these steps:
-	1. Make sure that you have Maven install. If that is not the case, you can download the latest version from the [Maven website](https://maven.apache.org/). 
+	1. Make sure that you have Maven installed. If that is not the case, you can download the latest version from the [Maven website](https://maven.apache.org/). 
 	2. Clone this repository to your local folder
 	3. Modify the sources as needed
 	4. Run the software using either your IDE (but please, remember to pass the necessary console arguments as explained in the [Usage section](#usage)) or generate your compiled JAR, containing all the required dependencies in one package,  with the following command: `mvn clean compile assembly:single`. For more instructions on the precise usage, the next section could be helpful. 
@@ -63,6 +63,10 @@ The `-f` option specifies a file path that is used to export the decision tree, 
 The `-h` option prints the help message.
 
 The `-p` option enables the custom pruning feature described in the [pruning section](#pruning-feature). 
+
+For example, we can use one of the data sets provided in the example folder to test the creation of a tree suitable for the use in chatbots using the following command:
+
+`java -jar jar/customj48.jar -d datasets/weather.norminal.arff`
 
 ## License
 
