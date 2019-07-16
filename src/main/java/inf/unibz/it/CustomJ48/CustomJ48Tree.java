@@ -408,7 +408,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  Whether we would like to prune subtrees
 	 * @throws Exception If something goes wrong
 	 */
-	public void JSONExport(PrintWriter writer, boolean pruning) {
+	public void JSONExport(PrintWriter writer, boolean pruning, boolean replace) {
 
 		try {
 			StringBuffer text = new StringBuffer();
@@ -429,7 +429,7 @@ public class CustomJ48Tree extends J48 {
 				text.append(", \"children\" : [");
 
 				// and we call the recursive method on the root to export its sons
-				JSONExport(m_root, text, pruning);
+				JSONExport(m_root, text, pruning, replace);
 
 				text.append("]");
 			}
@@ -459,7 +459,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning     Whether we would like to prune or not
 	 * @throws Exception If something goes wrong
 	 */
-	private void JSONExport(ClassifierTree currentNode, StringBuffer text, boolean pruning) throws Exception {
+	private void JSONExport(ClassifierTree currentNode, StringBuffer text, boolean pruning, boolean replace) throws Exception {
 
 		// get the sons of the current node
 		ClassifierTree[] sons = currentNode.getSons();
@@ -477,7 +477,10 @@ public class CustomJ48Tree extends J48 {
 
 				text.append(i > 0 ? ",{" : "{");
 				String tempLabel = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
-
+				
+				if(replace)
+					tempLabel = replace_underscore(tempLabel);
+				
 				String edgeLabel = tempLabel.replaceAll("^= ", "");
 
 				text.append("\"edgeLabel\" : \"" + edgeLabel + "\"");
@@ -494,7 +497,7 @@ public class CustomJ48Tree extends J48 {
 					text.append(",\"children\": [");
 
 					//and we analyze the son
-					JSONExport(sons[i], text, pruning);
+					JSONExport(sons[i], text, pruning, replace);
 
 					text.append("]");
 				}
@@ -508,6 +511,11 @@ public class CustomJ48Tree extends J48 {
 	 * UTILITY FUNCTIONS
 	 */
 	
+	/**
+	 * Utility function used to replace the underscore character used to represent the empty string when we use the replacing function
+	 * @param text text we would like to replace
+	 * @return the replaced text
+	 */
 	private String replace_underscore(String text) {
 		String result = text;
 		

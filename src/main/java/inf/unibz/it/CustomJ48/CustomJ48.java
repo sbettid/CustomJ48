@@ -174,7 +174,7 @@ public class CustomJ48 {
 				tree.exportGraphML(writer, pruning, replace);
 				break;
 			case JSON: 
-				tree.JSONExport(writer, pruning);
+				tree.JSONExport(writer, pruning, replace);
 			default: 
 				tree.dotExport(writer, pruning, replace);
 				break;
