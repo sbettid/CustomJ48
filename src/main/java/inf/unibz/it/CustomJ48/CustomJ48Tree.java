@@ -224,11 +224,11 @@ public class CustomJ48Tree extends J48 {
 	private void writeEdge(ClassifierSplitModel localModel, Instances trainingData, int parentId, int current,
 			StringBuffer sb, boolean replace) {
 		
-		String labelText = localModel.rightSide(current, trainingData);
+		String labelText = localModel.rightSide(current, trainingData).trim();
 		
-		if(replace && labelText.equals(" = _")) {
-			System.out.println("DEBUG:" + labelText);
-			labelText = " = ";
+		if(replace) {
+			
+			labelText = replace_underscore(labelText);
 		}
 			
 		// Writing edge between current node and its son
@@ -255,10 +255,10 @@ public class CustomJ48Tree extends J48 {
 	 * @param filepath Output file path
 	 * @param pruning  Whether we would like to prune branches or not
 	 */
-	public void dotExport(PrintWriter writer, boolean pruning) {
+	public void dotExport(PrintWriter writer, boolean pruning, boolean replace) {
 		try {
 			// Export the tree
-			StringBuffer exportResult = dotExport(pruning);
+			StringBuffer exportResult = dotExport(pruning, replace);
 
 			//writeOnStream(writer, exportResult, escapeChars);
 			writer.print(exportResult);
@@ -281,7 +281,7 @@ public class CustomJ48Tree extends J48 {
 	 * @return returns a string containing the exported tree in the dot format
 	 * @throws Exception if something goes wrong
 	 */
-	private StringBuffer dotExport(boolean pruning) throws Exception {
+	private StringBuffer dotExport(boolean pruning, boolean replace) throws Exception {
 
 		// Create a new string buffer to append all information about the tree
 		StringBuffer text = new StringBuffer();
@@ -312,7 +312,7 @@ public class CustomJ48Tree extends J48 {
 			}
 			text.append("]\n");
 			// and we call the recursive method on the root to export its sons
-			dotExport(m_root, 0, text, pruning);
+			dotExport(m_root, 0, text, pruning, replace);
 		}
 		
 		text.append("}\n");
@@ -331,7 +331,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning     Whether we are pruning or not.
 	 * @throws Exception If something goes wrong
 	 */
-	private void dotExport(ClassifierTree currentNode, int parentId, StringBuffer text, boolean pruning)
+	private void dotExport(ClassifierTree currentNode, int parentId, StringBuffer text, boolean pruning, boolean replace)
 			throws Exception {
 		// get the sons of the current node
 		ClassifierTree[] sons = currentNode.getSons();
@@ -349,9 +349,14 @@ public class CustomJ48Tree extends J48 {
 			if (!pruning || nInstances > 0) { // if we are pruning we check the number of instances in the subtree
 
 				// System.out.println("At the current node : " + nInstances + "instances");
-
+					
+					String labelText = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
+					
+					if(replace)
+						labelText = replace_underscore(labelText);
+				
 					text.append("N" + parentId + "->" + "N" + id + " [label=\""
-							+ Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim()) + "\"]\n");
+							+ labelText + "\"]\n");
 
 				// and its information
 
@@ -378,7 +383,7 @@ public class CustomJ48Tree extends J48 {
 						text.append("]\n");
 						id++;
 						
-						dotExport(sons[i], id - 1, text, pruning);
+						dotExport(sons[i], id - 1, text, pruning, replace);
 					
 				}
 			}
@@ -498,5 +503,18 @@ public class CustomJ48Tree extends J48 {
 		}
 	}
 	
+	
+	/*
+	 * UTILITY FUNCTIONS
+	 */
+	
+	private String replace_underscore(String text) {
+		String result = text;
+		
+		if(result.equals("= _") )
+			result = " = ";
+		
+		return result;
+	}
 
 }

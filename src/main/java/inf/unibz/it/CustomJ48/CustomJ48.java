@@ -176,7 +176,7 @@ public class CustomJ48 {
 			case JSON: 
 				tree.JSONExport(writer, pruning);
 			default: 
-				tree.dotExport(writer, pruning);
+				tree.dotExport(writer, pruning, replace);
 				break;
 				
 			}
