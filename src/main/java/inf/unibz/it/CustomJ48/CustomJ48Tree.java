@@ -52,7 +52,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  boolean value representing if we would like to apply our
 	 *                 pruning criteria or not
 	 */
-	public void exportGraphML(PrintWriter writer, boolean pruning) {
+	public void exportGraphML(PrintWriter writer, boolean pruning, boolean replace) {
 
 		// String builder used to store the content of the exported file
 		StringBuffer outputText = new StringBuffer();
@@ -108,7 +108,7 @@ public class CustomJ48Tree extends J48 {
 			outputText.append("</node>\n");
 
 			// traverse the tree recurring on the sons
-			exportGraphML(m_root, 0, outputText, pruning);
+			exportGraphML(m_root, 0, outputText, pruning, replace);
 
 		}
 
@@ -135,7 +135,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param sb          The string buffer used in the previous exportGraphML
 	 *                    method to append the result of the current visit
 	 */
-	private void exportGraphML(ClassifierTree currentNode, int parentId, StringBuffer sb, boolean pruning) {
+	private void exportGraphML(ClassifierTree currentNode, int parentId, StringBuffer sb, boolean pruning, boolean replace) {
 
 		try {
 
@@ -173,7 +173,7 @@ public class CustomJ48Tree extends J48 {
 						sb.append("</node>\n");
 
 						// Writing edge between current node and its son
-						writeEdge(localModel, trainingData, parentId, i, sb);
+						writeEdge(localModel, trainingData, parentId, i, sb, replace);
 
 						id++; // increment the node id
 					} else {
@@ -195,11 +195,11 @@ public class CustomJ48Tree extends J48 {
 						sb.append("</node>\n");
 
 						// Writing edge between current node and its son
-						writeEdge(localModel, trainingData, parentId, i, sb);
+						writeEdge(localModel, trainingData, parentId, i, sb, replace);
 
 						id++; // increment the node id
 
-						exportGraphML(sons[i], id - 1, sb, pruning); // recur on the son
+						exportGraphML(sons[i], id - 1, sb, pruning, replace); // recur on the son
 					}
 				}
 			}
@@ -222,16 +222,23 @@ public class CustomJ48Tree extends J48 {
 	 * @param sb           The string builder used to append the edge
 	 */
 	private void writeEdge(ClassifierSplitModel localModel, Instances trainingData, int parentId, int current,
-			StringBuffer sb) {
-
+			StringBuffer sb, boolean replace) {
+		
+		String labelText = localModel.rightSide(current, trainingData);
+		
+		if(replace && labelText.equals(" = _")) {
+			System.out.println("DEBUG:" + labelText);
+			labelText = " = ";
+		}
+			
 		// Writing edge between current node and its son
 		sb.append("<edge id=\"e" + id + " \" source=\"" + parentId + "\" target=\"" + id + "\" >\n");
 		sb.append("\t<data key=\"edgeLab\">\n");
 		sb.append("\t\t<x:List>\n\t\t\t<y:Label>\n");
-		sb.append("\t\t\t<y:Label.Text>" + localModel.rightSide(current, trainingData) + "</y:Label.Text>\n");
+		sb.append("\t\t\t<y:Label.Text>" + labelText + "</y:Label.Text>\n");
 		sb.append("\t\t\t</y:Label>\n\t\t</x:List>\n");
 		sb.append("\t</data>\n");
-		sb.append("\t<data key=\"desc\">" + localModel.rightSide(current, trainingData) + "</data>\n");
+		sb.append("\t<data key=\"desc\">" + labelText + "</data>\n");
 		sb.append("</edge>\n");
 	}
 

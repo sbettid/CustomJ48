@@ -57,7 +57,7 @@ public class CustomJ48 {
 		options.addOption(fileStream);
 		options.addOption(exportFormat);
 		options.addOption("p", "Enable the pruning feature"); // Enable or no the pruning feature?
-		options.addOption("r", "Make empty string a value for nominal attributes"); //replace empty string with a value
+		options.addOption("r", "Replace empty string in nominal attributes (with _) to make it an actual value"); //replace empty string with a value
 		options.addOption("h", "Print this help message"); // print the help message
 
 		CommandLineParser parser = new DefaultParser(); // create the parser
@@ -123,9 +123,13 @@ public class CustomJ48 {
 			if (data.classIndex() == -1)
 				data.setClassIndex(data.numAttributes() - 1);
 			
+			boolean replace = false; //Replace will be performed here but the back substitution in the export function
+			
 			//We make the missing string a value (_) if the associated option has been activated
 			if(line.hasOption("r")) {
-			
+				
+				replace = true;
+				
 				//we retrieve the list of attributes
 				Enumeration<Attribute> atts = data.enumerateAttributes();
 				String replaceable = ""; //we will collect the list of the attributes that needs to be adapted
@@ -167,7 +171,7 @@ public class CustomJ48 {
 			switch(export) {
 				
 			case GRAPHML: 
-				tree.exportGraphML(writer, pruning);
+				tree.exportGraphML(writer, pruning, replace);
 				break;
 			case JSON: 
 				tree.JSONExport(writer, pruning);
