@@ -1,0 +1,39 @@
+@RELATION example
+
+@ATTRIBUTE v1 {c,a}
+@ATTRIBUTE v2 {N/A, True, False}
+@ATTRIBUTE v3 {c,b}
+@ATTRIBUTE v4 {N/A, yes, no,''}
+@ATTRIBUTE _class {TB2, TB1}
+
+@DATA
+c,N/A,c,N/A,TB2
+c,False,c,N/A,TB2
+c,True,c,N/A,TB2
+c,N/A,c,yes,TB2
+c,True,c,yes,TB2
+c,False,c,yes,TB2
+c,N/A,c,no,TB2
+c,False,c,no,TB2
+c,True,c,no,TB2
+c,N/A,b,N/A,TB2
+c,True,b,N/A,TB2
+c,False,b,N/A,TB2
+c,N/A,b,no,TB2
+c,False,b,no,TB2
+c,True,b,no,TB2
+c,N/A,b,yes,TB2
+c,True,b,yes,TB2
+c,False,b,yes,TB2
+a,N/A,b,N/A,TB1
+a,False,b,N/A,TB1
+a,True,b,N/A,TB1
+a,N/A,b,no,TB1
+a,True,b,no,TB1
+a,False,b,no,TB1
+a,N/A,b,yes,TB1
+a,False,b,yes,TB1
+a,True,b,yes,TB1
+a,N/A,b,'',TB2
+a,True,b,'',TB2
+a,False,b,'',TB2

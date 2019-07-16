@@ -2,6 +2,7 @@ package inf.unibz.it.CustomJ48;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.util.logging.LogManager;
 
 import org.apache.commons.cli.CommandLine;
@@ -12,8 +13,12 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
+import weka.filters.unsupervised.instance.RemoveWithValues;
 
 /**
  * @author Davide Sbetti Main used to run the decision tree classifier on a
@@ -52,6 +57,7 @@ public class CustomJ48 {
 		options.addOption(fileStream);
 		options.addOption(exportFormat);
 		options.addOption("p", "Enable the pruning feature"); // Enable or no the pruning feature?
+		options.addOption("r", "Make empty string a value for nominal attributes"); //replace empty string with a value
 		options.addOption("h", "Print this help message"); // print the help message
 
 		CommandLineParser parser = new DefaultParser(); // create the parser
@@ -113,8 +119,38 @@ public class CustomJ48 {
 			
 			Instances data = source.getDataSet();
 			
+			
 			if (data.classIndex() == -1)
 				data.setClassIndex(data.numAttributes() - 1);
+			
+			//We make the missing string a value (_) if the associated option has been activated
+			if(line.hasOption("r")) {
+			
+				//we retrieve the list of attributes
+				Enumeration<Attribute> atts = data.enumerateAttributes();
+				String replaceable = ""; //we will collect the list of the attributes that needs to be adapted
+				while(atts.hasMoreElements()) {
+					Attribute current = atts.nextElement();
+					
+					//If the attribute is nominal and has some missing values we add it ro the replaceable ones
+					if(current.isNominal() && data.attributeStats(current.index()).missingCount > 0) 
+						replaceable += current.name() + ",";
+					
+				}
+				
+				//Let's create the filter
+				ReplaceMissingWithUserConstant filter = new ReplaceMissingWithUserConstant();
+				
+				//we set the underscore as replaceable character
+				filter.setNominalStringReplacementValue("_");
+				filter.setAttributes(replaceable); //and the attributes
+				Instances inst = new Instances(data);
+				filter.setInputFormat(inst); //let's add the dataset
+				data = Filter.useFilter(data, filter); //and FILTER!
+			
+				
+
+			}
 			
 			// Creating the tree object
 			

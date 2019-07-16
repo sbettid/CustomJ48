@@ -64,7 +64,7 @@ The `-h` option prints the help message.
 
 The `-p` option enables the custom pruning feature described in the [pruning section](#pruning-feature). 
 
-For example, we can use one of the data sets provided in the example folder to test the creation of a tree suitable for the use in chatbots using the following command:
+For example, we can use one of the data sets provided in the example folder and the compiled jar to test the creation of the tree running the following command from the project's root folder:
 
 `java -jar jar/customj48.jar -d datasets/weather.norminal.arff`
 
