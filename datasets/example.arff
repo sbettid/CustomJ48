@@ -3,7 +3,7 @@
 @ATTRIBUTE v1 {c,a}
 @ATTRIBUTE v2 {N/A, True, False}
 @ATTRIBUTE v3 {c,b}
-@ATTRIBUTE v4 {N/A, yes, no, ,}
+@ATTRIBUTE v4 {N/A, yes, no}
 @ATTRIBUTE _class {TB2, TB1}
 
 @DATA

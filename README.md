@@ -2,7 +2,7 @@
 
 Custom J48 is an extension of the J48 class of the [Weka library](https://www.cs.waikato.ac.nz/ml/weka/) part of a Bachelor thesis project. J48 is a java implementation of the C4.5 machine learning algorithm.
 
-The goal of this extension was to add the ability to export the generated decision trees in multiple formats, used then for the creation of a chatbot application, adding also a pruning ability. 
+The goal of this extension was to add the ability to export the generated decision trees in multiple formats, used then for the creation of a chatbot application, adding also a pruning ability and the possibility to use the empty string as a concrete value.
 
 ## Export formats
 
@@ -17,21 +17,28 @@ Trees generated using the J48 class can be exported in three different formats:
     The tree is specified in a recursive way, where each node, except the leafs, contains the list of      its children nodes. Moreover, every node has a label attribute specifying the attribute used to split the data at the given point. All nodes (except the root) have an edgeLabel property, which represents the label of the edge from the parent node.
 
 
-Independently from the chosen export format, it is possible to activate the pruning capability. 
+Independently from the chosen export format, it is possible to activate the pruning and empty string capabilities.
 
 ## Pruning feature
 
-In the scope of our project, the pruning capability was necessary because the algorithm, given an attribute, adds an edge labelled with any value that it is able to find for the given attribute in the whole dataset, although possibly no instances reach that node, an intended behaviour used by C4.5 to avoid overfitting. 
+In the scope of our project, the pruning capability was necessary because the algorithm, given an attribute, adds an edge labelled with any value that it is able to find for the given attribute in the whole data set, although possibly no instances reach that node, an intended behaviour used by C4.5 to avoid overfitting. 
 
 However, in our chatbot creation case, we assumed that the data set contains all possible legal combinations and therefore, such branches, were not desired and would have led to a misleading tree. For this reason, the different export functions that were encoded allow a parameter that enables the pruning of branches reached by no instances as soon as they are discovered.
 
+##Empty string replacement
+
+Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. 
+
+In fact, when encountering an instance with a missing value, Weka splits it making it a fractional instance of every possible value available for the attribute, which is clearly different than having an empty string as an independent value. 
+
+Our implementation replaces empty strings with a custom value (the underscore), to make them actual values for Weka when building the tree. As noted before, when exporting, the underscore is replaced back with the empty string. 
 
 ## Installation
 
 There are two ways to use this application: 
 
 1. If you do not need to modify the sources of the application you can simply use the compiled JAR that you can find 
-here on GitLab at the following address [address goes here]. Once downloaded, you can simply launch it with the java command `java -jar customJ48.jar -d your_dataset` specifying after the name of the file the desired options (more on that in the [Usage section](#usage)).
+here on GitLab at the following address [address goes here]. Once downloaded, you can simply launch it with the java command `java -jar customJ48.jar -d your_data set` specifying after the name of the file the desired options (more on that in the [Usage section](#usage)).
 
 2. On the other hand, if you would like to modify the source code, feel free to do it! The J48 application requires Weka 3.8.3 stable. Dependencies have all been managed using Maven and therefore you can install and run the software following these steps:
 	1. Make sure that you have Maven installed. If that is not the case, you can download the latest version from the [Maven website](https://maven.apache.org/). 
@@ -45,14 +52,16 @@ The software is a command line application that supports the following parameter
 
 ```
 usage: customj48
--d <dataset>   Specifies the path of the dataset (REQUIRED)
--e <format>    specify the export format (graphml, dot, json). Default is: dot
--f <file>      Output the export code to the given file instead of using the console
--h             Print this help message
--p             Enable the pruning feature
+ -d <dataset>   Specifies the path of the dataset (REQUIRED)
+ -e <format>    specify the export format (graphml, dot, json). Default
+                is: dot
+ -f <file>      Output the export code to the given file
+ -h             Print this help message
+ -p             Enable the pruning feature
+ -r             Replace empty strings (with _) to make them actual values
 ```
 
-The `-d` option is the only one required, it specifies the dataset file that will be used to build the decison tree. 
+The `-d` option is the only one required, it specifies the data set file that will be used to build the decison tree. 
 The accepted formats are all the ones accepted by the Weka library and therefore both ARFF and CSV. 
 
 The `-e` option specifies the desired format for the export of the tree. The default one is DOT, but GRAPHML and JSON are also available. See more details about the export formats in the [dedicated section](#export-formats). 
@@ -64,9 +73,11 @@ The `-h` option prints the help message.
 
 The `-p` option enables the custom pruning feature described in the [pruning section](#pruning-feature). 
 
+The `-r` option enables the custom empty string replacement as explained in the [string replacement section](#empty-string-replacement).
+
 For example, we can use one of the data sets provided in the example folder and the compiled jar to test the creation of the tree running the following command from the project's root folder:
 
-`java -jar jar/customj48.jar -d datasets/weather.norminal.arff`
+`java -jar jar/customj48.jar -d data sets/weather.norminal.arff`
 
 ## License
 

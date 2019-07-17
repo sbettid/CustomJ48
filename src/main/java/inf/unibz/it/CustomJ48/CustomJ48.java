@@ -1,8 +1,16 @@
 package inf.unibz.it.CustomJ48;
 
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Enumeration;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Scanner;
 import java.util.logging.LogManager;
 
 import org.apache.commons.cli.CommandLine;
@@ -12,13 +20,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.omg.CORBA.portable.InputStream;
 
-import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
-import weka.filters.unsupervised.instance.RemoveWithValues;
+
 
 /**
  * @author Davide Sbetti Main used to run the decision tree classifier on a
@@ -57,7 +65,7 @@ public class CustomJ48 {
 		options.addOption(fileStream);
 		options.addOption(exportFormat);
 		options.addOption("p", "Enable the pruning feature"); // Enable or no the pruning feature?
-		options.addOption("r", "Replace empty string in nominal attributes (with _) to make it an actual value"); //replace empty string with a value
+		options.addOption("r", "Replace empty strings (with _) to make them actual values"); //replace empty string with a value
 		options.addOption("h", "Print this help message"); // print the help message
 
 		CommandLineParser parser = new DefaultParser(); // create the parser
@@ -111,50 +119,54 @@ public class CustomJ48 {
 					export = ExportFormat.JSON;
 			}
 
-			// we have now all the information to create the decision tree and export it  based on the
-			// specified options
-			
-			//System.out.println("Dataset path is " + dataset);
-			DataSource source = new DataSource(dataset);
-			
-			Instances data = source.getDataSet();
-			
-			
-			if (data.classIndex() == -1)
-				data.setClassIndex(data.numAttributes() - 1);
 			
 			boolean replace = false; //Replace will be performed here but the back substitution in the export function
 			
+			DataSource source;
+			Instances data;
 			//We make the missing string a value (_) if the associated option has been activated
 			if(line.hasOption("r")) {
 				
 				replace = true;
 				
-				//we retrieve the list of attributes
-				Enumeration<Attribute> atts = data.enumerateAttributes();
-				String replaceable = ""; //we will collect the list of the attributes that needs to be adapted
-				while(atts.hasMoreElements()) {
-					Attribute current = atts.nextElement();
-					
-					//If the attribute is nominal and has some missing values we add it ro the replaceable ones
-					if(current.isNominal() && data.attributeStats(current.index()).missingCount > 0) 
-						replaceable += current.name() + ",";
+				
+				//Read and replace the content of the dataset
+				Scanner myScanner = new Scanner(new File(dataset));
+				String newFile = "";
+				while(myScanner.hasNextLine()) {
+					newFile += myScanner.nextLine().replaceAll(",,", ",_,") + "\n";
 					
 				}
 				
-				//Let's create the filter
-				ReplaceMissingWithUserConstant filter = new ReplaceMissingWithUserConstant();
+				//Create a temporary file where to store the results
+				String tempFilePath = System.getProperty("java.io.tmpdir") + "customj48_temp.csv";
+				File tempFile = new File(tempFilePath);
 				
-				//we set the underscore as replaceable character
-				filter.setNominalStringReplacementValue("_");
-				filter.setAttributes(replaceable); //and the attributes
-				Instances inst = new Instances(data);
-				filter.setInputFormat(inst); //let's add the dataset
-				data = Filter.useFilter(data, filter); //and FILTER!
-			
+				//Rewrite it on a temporary file so we do not modify the original data set
+				BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
 				
-
+				bw.write(newFile);
+				
+				bw.close();
+				
+				source = new DataSource(tempFile.getAbsolutePath());
+				
+				tempFile.deleteOnExit(); //Working on every system but Windows
+				
+			} else {
+				source = new DataSource(dataset);
+				
 			}
+			
+			data = source.getDataSet();
+			
+			//Test code TODO remove
+			for(Instance test : data) {
+				System.out.println(test.toString(3));
+			}
+			
+			if (data.classIndex() == -1) //Setting the last attribute to be last one
+				data.setClassIndex(data.numAttributes() - 1);
 			
 			// Creating the tree object
 			
@@ -168,7 +180,7 @@ public class CustomJ48 {
 			tree.buildClassifier(data); //Build the tree
 			
 			//Export it according to user's options
-			switch(export) {
+			switch(export) {	
 				
 			case GRAPHML: 
 				tree.exportGraphML(writer, pruning, replace);
@@ -194,5 +206,9 @@ public class CustomJ48 {
 			e.printStackTrace();
 		}
 
+	System.exit(0);
+	
 	}
+	
+	
 }
