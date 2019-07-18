@@ -25,7 +25,7 @@ In the scope of our project, the pruning capability was necessary because the al
 
 However, in our chatbot creation case, we assumed that the data set contains all possible legal combinations and therefore, such branches, were not desired and would have led to a misleading tree. For this reason, the different export functions that were encoded allow a parameter that enables the pruning of branches reached by no instances as soon as they are discovered.
 
-##Empty string replacement
+## Empty string replacement
 
 Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. 
 
@@ -78,6 +78,32 @@ The `-r` option enables the custom empty string replacement as explained in the 
 For example, we can use one of the data sets provided in the example folder and the compiled jar to test the creation of the tree running the following command from the project's root folder:
 
 `java -jar jar/customj48.jar -d data sets/weather.norminal.arff`
+
+We will obtain the following exported tree
+
+```
+digraph J48Tree {
+N0 [label="outlook" ]
+N0->N1 [label="= sunny"]
+N1 [label="humidity" ]
+N1->N2 [label="= high"]
+N2 [label="no (3.0)" shape=box style=filled ]
+N1->N3 [label="= normal"]
+N3 [label="yes (2.0)" shape=box style=filled ]
+N0->N4 [label="= overcast"]
+N4 [label="yes (4.0)" shape=box style=filled ]
+N0->N5 [label="= rainy"]
+N5 [label="windy" ]
+N5->N6 [label="= TRUE"]
+N6 [label="no (2.0)" shape=box style=filled ]
+N5->N7 [label="= FALSE"]
+N7 [label="yes (3.0)" shape=box style=filled ]
+}
+```
+
+which is the DOT representation of the following tree: 
+
+![Graphical tree representation](datasets/tree_test.jpg)
 
 ## License
 
