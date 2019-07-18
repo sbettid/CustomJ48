@@ -125,45 +125,32 @@ public class CustomJ48 {
 			DataSource source;
 			Instances data;
 			//We make the missing string a value (_) if the associated option has been activated
-			if(line.hasOption("r")) {
+			if(line.hasOption("r") && !DataSource.isArff(dataset)) {
 				
-				replace = true;
+					replace = true;
 				
-				
-				//Read and replace the content of the dataset
-				Scanner myScanner = new Scanner(new File(dataset));
-				String newFile = "";
-				while(myScanner.hasNextLine()) {
-					newFile += myScanner.nextLine().replaceAll(",,", ",_,") + "\n";
+					//Read and replace the content of the dataset
+					Scanner myScanner = new Scanner(new File(dataset));
+					String newFile = "";
+					while(myScanner.hasNextLine()) {
+						newFile += myScanner.nextLine().replaceAll(",,", ",_,") + "\n";
+						
+					}
 					
-				}
+					ByteArrayInputStream in = new ByteArrayInputStream(newFile.getBytes());
+					
+					
+					CSVLoader csv = new CSVLoader();
+					csv.setSource(in);
+					
+					data = csv.getDataSet();
 				
-				//Create a temporary file where to store the results
-				String tempFilePath = System.getProperty("java.io.tmpdir") + "customj48_temp.csv";
-				File tempFile = new File(tempFilePath);
-				
-				//Rewrite it on a temporary file so we do not modify the original data set
-				BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
-				
-				bw.write(newFile);
-				
-				bw.close();
-				
-				source = new DataSource(tempFile.getAbsolutePath());
-				
-				tempFile.deleteOnExit(); //Working on every system but Windows
 				
 			} else {
 				source = new DataSource(dataset);
-				
+				data = source.getDataSet();
 			}
 			
-			data = source.getDataSet();
-			
-			//Test code TODO remove
-			for(Instance test : data) {
-				System.out.println(test.toString(3));
-			}
 			
 			if (data.classIndex() == -1) //Setting the last attribute to be last one
 				data.setClassIndex(data.numAttributes() - 1);
