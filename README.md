@@ -29,7 +29,7 @@ Trees generated using the J48 class can be exported in three different formats:
 	}
 ```
 
-    The tree is specified in a recursive way, where each node, except the leafs, contains the list of      its children nodes. Moreover, every node has a label attribute specifying the attribute used to split the data at the given point. All nodes (except the root) have an edgeLabel property, which represents the label of the edge from the parent node.
+The tree is specified in a recursive way, where each node, except the leafs, contains the list of      its children nodes. Moreover, every node has a label attribute specifying the attribute used to split the data at the given point. All nodes (except the root) have an edgeLabel property, which represents the label of the edge from the parent node.
 
 
 Independently from the chosen export format, it is possible to activate the pruning and empty string capabilities.
