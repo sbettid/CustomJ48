@@ -1,6 +1,6 @@
 # Custom J48
 
-Custom J48 is an extension of the J48 class of the [Weka library](https://www.cs.waikato.ac.nz/ml/weka/) part of a Bachelor thesis project. J48 is a java implementation of the C4.5 machine learning algorithm.
+Custom J48 is an extension of the J48 class of the [Weka library](https://www.cs.waikato.ac.nz/ml/weka/) part of a Bachelor thesis project regarding the creation of chatbots. J48 is a java implementation of the C4.5 machine learning algorithm.
 
 The goal of this extension was to add the ability to export the generated decision trees in multiple formats, used then for the creation of a chatbot application, adding also a pruning ability and the possibility to use the empty string as a concrete value.
 
@@ -31,6 +31,7 @@ Trees generated using the J48 class can be exported in three different formats:
 
 The tree is specified in a recursive way, where each node, except the leafs, contains the list of      its children nodes. Moreover, every node has a label attribute specifying the attribute used to split the data at the given point. All nodes (except the root) have an edgeLabel property, which represents the label of the edge from the parent node.
 
+Trees exported using the described JSON format can be used directly as input of the chatbot interpreter, the second software part of the Bachelor Thesis, that can be found [at this address](https://gitlab.inf.unibz.it/Davide.Sbetti/bot_interpreter). 
 
 Independently from the chosen export format, it is possible to activate the pruning and empty string capabilities.
 
