@@ -26,6 +26,6 @@ a,False,b,no,TB1
 a,N/A,b,yes,TB1
 a,False,b,yes,TB1
 a,True,b,yes,TB1
-a,N/A,b,,TB2
-a,True,b,,TB2
-a,False,b,,TB2
+a,N/A,b, ,TB2
+a,True,b, ,TB2
+a,False,b, ,TB2

@@ -1,15 +1,12 @@
 package inf.unibz.it.CustomJ48;
 
 
-import java.io.BufferedWriter;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 
@@ -20,9 +17,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.omg.CORBA.portable.InputStream;
-
-import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -124,35 +118,44 @@ public class CustomJ48 {
 			
 			DataSource source;
 			Instances data;
-			//We make the missing string a value (_) if the associated option has been activated
+			
+			//We make the missing string a value (_) if the associated option has been activated and the data set is in CSV format
 			if(line.hasOption("r") && !DataSource.isArff(dataset)) {
 				
 					replace = true;
 				
 					//Read and replace the content of the dataset
-					Scanner myScanner = new Scanner(new File(dataset));
+					Scanner myScanner = new Scanner(new File(dataset), "utf-8");
 					String newFile = "";
+					int lineNumber = 0;
 					while(myScanner.hasNextLine()) {
-						newFile += myScanner.nextLine().replaceAll(",,", ",_,") + "\n";
 						
+						lineNumber++;
+						String fileLine = myScanner.nextLine().replaceAll("\\s*,\\s*", ",").trim(); //remove trailing and leading spaces
+						
+						if(fileLine.contains(",_,")) //if it already contains an underscore throw an exception
+							throw new ParseException("Underscore character already found during replacement at line " + lineNumber);
+						
+						newFile += fileLine.replaceAll(",,", ",_,") + "\n";	//otherwise replace empty strings with underscore
 					}
 					
-					ByteArrayInputStream in = new ByteArrayInputStream(newFile.getBytes());
+					ByteArrayInputStream in = new ByteArrayInputStream(newFile.getBytes("utf-8")); //create the input stream from the new content
 					
 					
-					CSVLoader csv = new CSVLoader();
+					CSVLoader csv = new CSVLoader(); //load it as CSV
 					csv.setSource(in);
 					
-					data = csv.getDataSet();
-				
-				
-			} else {
+					data = csv.getDataSet(); //get the data set
+					
+					myScanner.close();
+					
+			} else { //otherwise we just use the given data set
 				source = new DataSource(dataset);
 				data = source.getDataSet();
 			}
 			
 			
-			if (data.classIndex() == -1) //Setting the last attribute to be last one
+			if (data.classIndex() == -1) //Setting the last attribute to be last one if not explicitly set
 				data.setClassIndex(data.numAttributes() - 1);
 			
 			// Creating the tree object
@@ -181,7 +184,7 @@ public class CustomJ48 {
 			}
 			
 		} catch (ParseException e) {
-			// oops, something went wrong
+			
 			System.err.println("Parsing of the arguments failed. Reason: " + e.getMessage());
 		}
 

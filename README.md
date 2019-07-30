@@ -43,11 +43,13 @@ However, in our chatbot creation case, we assumed that the data set contains all
 
 ## Empty string replacement
 
-Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. 
+Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. This clearly applies only in case of CSV files, since the ARFF format enforce the declaration of all possible values for categorical attributes and the empty string is not allowed.  
 
 In fact, when encountering an instance with a missing value, Weka splits it making it a fractional instance of every possible value available for the attribute, which is clearly different than having an empty string as an independent value. 
 
-Our implementation replaces empty strings with a custom value (the underscore), to make them actual values for Weka when building the tree. As noted before, when exporting, the underscore is replaced back with the empty string. 
+Our implementation pre-processes the data set, replacing every empty string (also strings made up by only spaces) with the underscore character. A standard decision tree is then created and, while exporting, the underscores are then replaced back with the empty string.
+
+Please note how, when this option is active and an attribute that already has a single underscore as value is encountered, the application will throw an exception. Moreover, in order to apply the pre-process of the data set, this should be encoded in the utf-8 format.
 
 ## Installation
 
@@ -78,7 +80,7 @@ usage: customj48
 ```
 
 The `-d` option is the only one required, it specifies the data set file that will be used to build the decison tree. 
-The accepted formats are all the ones accepted by the Weka library and therefore both ARFF and CSV. 
+The accepted formats are all the ones accepted by the Weka library and therefore both ARFF and CSV. When a CSV file is used, the first line should contain the attributes list, with the class attribute as last one.
 
 The `-e` option specifies the desired format for the export of the tree. The default one is DOT, but GRAPHML and JSON are also available. See more details about the export formats in the [dedicated section](#export-formats). 
 PS: if you use the JSON format and you are interested in the creation of chatbots, take a look at the [associated project](https://gitlab.inf.unibz.it/Davide.Sbetti/bot_interpreter).
