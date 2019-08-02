@@ -17,9 +17,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.StringToNominal;
 
 
 /**
@@ -60,7 +63,8 @@ public class CustomJ48 {
 		options.addOption(exportFormat);
 		options.addOption("p", "Enable the pruning feature"); // Enable or no the pruning feature?
 		options.addOption("r", "Replace empty strings (with _) to make them actual values"); //replace empty string with a value
-		options.addOption("h", "Print this help message"); // print the help message
+		options.addOption("h", "Prints this help message"); // print the help message
+		options.addOption("v", "Prints the software version"); //print software version
 
 		CommandLineParser parser = new DefaultParser(); // create the parser
 
@@ -73,6 +77,12 @@ public class CustomJ48 {
 				// automatically generate the help statement
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("customj48", options);
+				return;
+			}
+			
+			//Print Software version
+			if(line.hasOption("v")) {
+				System.out.println("CustomJ48 version 0.1.1");
 				return;
 			}
 
@@ -152,6 +162,17 @@ public class CustomJ48 {
 			} else { //otherwise we just use the given data set
 				source = new DataSource(dataset);
 				data = source.getDataSet();
+			}
+			
+			//check for attributes read as string
+			if(data.checkForStringAttributes()) {
+				
+				//Apply weka filter
+				StringToNominal filter = new StringToNominal();
+				filter.setAttributeRange("first-last");
+				filter.setInputFormat(data);
+				
+				data = Filter.useFilter(data, filter);
 			}
 			
 			
