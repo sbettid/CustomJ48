@@ -1,11 +1,11 @@
 package inf.unibz.it.CustomJ48;
 
-
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Scanner;
 import java.util.logging.LogManager;
@@ -24,27 +24,30 @@ import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToNominal;
 
-
 /**
  * @author Davide Sbetti Main used to run the decision tree classifier on a
  *         specified dataset and then export the result in the dot format
  *
  */
 public class CustomJ48 {
-	
-	public enum ExportFormat{
-		DOT,JSON, GRAPHML;
+
+	public enum ExportFormat {
+		DOT, JSON, GRAPHML;
 	}
 	
+	public enum InputFormat{
+		CSV, ARFF;
+	}
+
 	public static void main(String[] args) {
-		
-		LogManager.getLogManager().reset(); //Prevent the system from continuously writing logs to the console
-		
+
+		LogManager.getLogManager().reset(); // Prevent the system from continuously writing logs to the console
+
 		// Since it is a console application let's prepare the options that require an
 		// argument
 		// We need the user to specify the path of the dataset
-		Option datasetPath = Option.builder("d").argName("dataset").hasArg()
-				.desc("Specifies the path of the dataset (REQUIRED)").build();
+		Option datasetPath = Option.builder("d").argName("dataset").hasArg().desc("Specifies the path of the dataset")
+				.build();
 
 		// Let's create the option to use a file instead the console stream for the
 		// export code
@@ -56,15 +59,22 @@ public class CustomJ48 {
 		Option exportFormat = Option.builder("e").argName("format").hasArg()
 				.desc("specify the export format (graphml, dot, json). Default is: dot").build();
 
+		// The 'e' option allows the user to decide the export format (graphml, dot and
+		// json), default is dot
+		Option inputFormat = Option.builder("i").argName("format").hasArg()
+				.desc("input format for STDIN data set input (csv, arff). Default is: csv").build();
+
 		// And now add them to the options array with the boolean ones (flags)
 		Options options = new Options();
 		options.addOption(datasetPath);
 		options.addOption(fileStream);
 		options.addOption(exportFormat);
+		options.addOption(inputFormat);
 		options.addOption("p", "Enable the pruning feature"); // Enable or no the pruning feature?
-		options.addOption("r", "Replace empty strings (with _) to make them actual values"); //replace empty string with a value
+		options.addOption("r", "Replace empty strings (with _) to make them actual values"); // replace empty string
+																								// with a value
 		options.addOption("h", "Prints this help message"); // print the help message
-		options.addOption("v", "Prints the software version"); //print software version
+		options.addOption("v", "Prints the software version"); // print software version
 
 		CommandLineParser parser = new DefaultParser(); // create the parser
 
@@ -79,31 +89,21 @@ public class CustomJ48 {
 				formatter.printHelp("customj48", options);
 				return;
 			}
-			
-			//Print Software version
-			if(line.hasOption("v")) {
+
+			// Print Software version
+			if (line.hasOption("v")) {
 				System.out.println("CustomJ48 version 0.1.1");
 				return;
 			}
 
-			// If the user does not specify the dataset, we print an error message and we
-			// exit
-			if (!line.hasOption("d")) {
-				System.err.println("The -d option is required to specify the dataset path");
-				return;
-			}
-
-			// otherwise we specify it
-			String dataset = line.getOptionValue("d");
-
 			// Let's define the printwriter instance, console or file?
 			PrintWriter writer;
-			
+
 			if (line.hasOption("f")) {
 				writer = new PrintWriter(line.getOptionValue("f"));
 			} else {
 				writer = new PrintWriter(System.out);
-				
+
 			}
 
 			boolean pruning = false; // we set the pruning to the default value
@@ -123,64 +123,69 @@ public class CustomJ48 {
 					export = ExportFormat.JSON;
 			}
 
-			
-			boolean replace = false; //Replace will be performed here but the back substitution in the export function
-			
+			// prepare to read instances
 			DataSource source;
 			Instances data;
+			boolean replace = false;
 			
-			//We make the missing string a value (_) if the associated option has been activated and the data set is in CSV format
-			if(line.hasOption("r") && !DataSource.isArff(dataset)) {
+			if (line.hasOption("d")) { //if the input comes from a file
+
+				String path = line.getOptionValue("d"); //take the path
+
+				if (line.hasOption("r") && !DataSource.isArff(path)) { //if the user wants replace and file is CSV
+					replace = true;
+					
+					String dataSet = read(new FileInputStream(new File(path)), replace); //read and replace
+
+					data = getInstancesFromCSV(dataSet);
 				
+				} else { //otherwise we simply read the data set from the file
+					source = new DataSource(path);
+					data = source.getDataSet();
+				}
+
+			} else { //the input comes from STDIN
+				
+				InputFormat format = InputFormat.CSV;
+				
+				if(line.hasOption("i") && line.getOptionValue("i").equals("arff"))
+					format = InputFormat.ARFF;
+				
+				if(line.hasOption("r") && format.equals(InputFormat.CSV))
 					replace = true;
 				
-					//Read and replace the content of the dataset
-					Scanner myScanner = new Scanner(new File(dataset), "utf-8");
-					String newFile = "";
-					int lineNumber = 0;
-					while(myScanner.hasNextLine()) {
-						
-						lineNumber++;
-						String fileLine = myScanner.nextLine().replaceAll("\\s*,\\s*", ",").trim(); //remove trailing and leading spaces
-						
-						if(fileLine.contains(",_,")) //if it already contains an underscore throw an exception
-							throw new ParseException("Underscore character already found during replacement at line " + lineNumber);
-						
-						newFile += fileLine.replaceAll(",,", ",_,") + "\n";	//otherwise replace empty strings with underscore
-					}
-					
-					ByteArrayInputStream in = new ByteArrayInputStream(newFile.getBytes("utf-8")); //create the input stream from the new content
-					
-					
-					CSVLoader csv = new CSVLoader(); //load it as CSV
-					csv.setSource(in);
-					
-					data = csv.getDataSet(); //get the data set
-					
-					myScanner.close();
-					
-			} else { //otherwise we just use the given data set
-				source = new DataSource(dataset);
-				data = source.getDataSet();
-			}
-			
-			//check for attributes read as string
-			if(data.checkForStringAttributes()) {
+				String dataSet = read(System.in, replace);
 				
-				//Apply weka filter
+				switch(format) {
+					case ARFF:
+						ByteArrayInputStream in = new ByteArrayInputStream(dataSet.getBytes("utf-8"));
+						source = new DataSource(in);
+						data = source.getDataSet();
+					break;
+					
+					default:
+						data = getInstancesFromCSV(dataSet);
+					break;
+				}
+				
+			}
+
+			// check for attributes read as string
+			if (data.checkForStringAttributes()) {
+
+				// Apply weka filter to convert them to nominal
 				StringToNominal filter = new StringToNominal();
 				filter.setAttributeRange("first-last");
 				filter.setInputFormat(data);
-				
+
 				data = Filter.useFilter(data, filter);
 			}
-			
-			
-			if (data.classIndex() == -1) //Setting the last attribute to be last one if not explicitly set
+
+			if (data.classIndex() == -1) // Setting the last attribute to be last one if not explicitly set
 				data.setClassIndex(data.numAttributes() - 1);
-			
+
 			// Creating the tree object
-			
+
 			CustomJ48Tree tree = new CustomJ48Tree();
 
 			// Setting options
@@ -188,24 +193,24 @@ public class CustomJ48 {
 			String[] treeOptions = weka.core.Utils.splitOptions("-M 1 -U");
 			tree.setOptions(treeOptions);
 
-			tree.buildClassifier(data); //Build the tree
-			
-			//Export it according to user's options
-			switch(export) {	
-				
-			case GRAPHML: 
+			tree.buildClassifier(data); // Build the tree
+
+			// Export it according to user's options
+			switch (export) {
+
+			case GRAPHML:
 				tree.exportGraphML(writer, pruning, replace);
 				break;
-			case JSON: 
+			case JSON:
 				tree.JSONExport(writer, pruning, replace);
-			default: 
+			default:
 				tree.dotExport(writer, pruning, replace);
 				break;
-				
+
 			}
-			
+
 		} catch (ParseException e) {
-			
+
 			System.err.println("Parsing of the arguments failed. Reason: " + e.getMessage());
 		}
 
@@ -217,9 +222,47 @@ public class CustomJ48 {
 			e.printStackTrace();
 		}
 
-	System.exit(0);
+		System.exit(0);
+
+	}
+
+	private static String read(InputStream in, boolean replaceEmptyStrings) throws ParseException {
+
+		// Read and replace the content of the dataset
+		Scanner myScanner = new Scanner(in, "utf-8");
+		String newFile = "";
+		int lineNumber = 0;
 	
+		while (myScanner.hasNextLine()) {
+
+			lineNumber++;
+			String fileLine = myScanner.nextLine().replaceAll("\\s*,\\s*", ",").trim(); // remove trailing and leading
+																						// spaces
+			if(replaceEmptyStrings) {
+			
+				if (fileLine.contains(",_,")) // if it already contains an underscore throw an exception
+					throw new ParseException("Underscore character already found during replacement at line " + lineNumber);
+
+				newFile += fileLine.replaceAll(",,", ",_,") + "\n"; // otherwise replace empty strings with underscore
+			} else
+				newFile += fileLine + "\n";
+		}
+		
+		myScanner.close();
+
+		return newFile;
 	}
 	
-	
+	private static Instances getInstancesFromCSV(String file) throws IOException {
+		
+		ByteArrayInputStream in = new ByteArrayInputStream(file.getBytes("utf-8")); // create the input
+		// stream from the new
+		// content
+
+		CSVLoader csv = new CSVLoader(); // load it as CSV
+		csv.setSource(in);
+
+		return csv.getDataSet(); // get the data set
+	}
+
 }

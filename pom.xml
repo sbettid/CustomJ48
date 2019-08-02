@@ -5,7 +5,7 @@
 
 	<groupId>inf.unibz.it</groupId>
 	<artifactId>customj48</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<packaging>jar</packaging>
 
 	<name>CustomJ48</name>

@@ -63,7 +63,9 @@ public class CustomJ48Tree extends J48 {
 		outputText.append(
 				"<graphml xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml.html/2.0/ygraphml.xsd \" xmlns=\"http://graphml.graphdrawing.org/xmlns\" xmlns:demostyle=\"http://www.yworks.com/yFilesHTML/demos/FlatDemoStyle/1.0\" xmlns:bpmn=\"http://www.yworks.com/xml/yfiles-for-html/bpmn/2.0\" xmlns:demotablestyle=\"http://www.yworks.com/yFilesHTML/demos/FlatDemoTableStyle/1.0\" xmlns:uml=\"http://www.yworks.com/yFilesHTML/demos/UMLDemoStyle/1.0\" "
 						+ "xmlns:compat=\"http://www.yworks.com/xml/yfiles-compat-arrows/1.0\" xmlns:GraphvizNodeStyle=\"http://www.yworks.com/yFilesHTML/graphviz-node-style/1.0\" xmlns:VuejsNodeStyle=\"http://www.yworks.com/demos/yfiles-vuejs-node-style/1.0\" xmlns:y=\"http://www.yworks.com/xml/yfiles-common/3.0\" xmlns:x=\"http://www.yworks.com/xml/yfiles-common/markup/3.0\" xmlns:yjs=\"http://www.yworks.com/xml/yfiles-for-html/2.0/xaml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
-
+		
+		outputText.append("<graph edgedefault = \"directed\">");
+		
 		// Append the keys, so the types of the variables used to store labels
 		// attributes and descriptions
 		outputText.append(
@@ -111,7 +113,8 @@ public class CustomJ48Tree extends J48 {
 			exportGraphML(m_root, 0, outputText, pruning, replace);
 
 		}
-
+		
+		outputText.append("</graph>");
 		outputText.append("</graphml>\n");
 
 		// Writing everything on the user's specified file
