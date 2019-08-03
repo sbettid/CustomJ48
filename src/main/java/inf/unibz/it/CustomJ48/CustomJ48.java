@@ -148,22 +148,22 @@ public class CustomJ48 {
 				
 				InputFormat format = InputFormat.CSV;
 				
-				if(line.hasOption("i") && line.getOptionValue("i").equals("arff"))
+				if(line.hasOption("i") && line.getOptionValue("i").equals("arff")) //change default format if specified
 					format = InputFormat.ARFF;
 				
-				if(line.hasOption("r") && format.equals(InputFormat.CSV))
+				if(line.hasOption("r") && format.equals(InputFormat.CSV)) //if user wants replace and file is CSV
 					replace = true;
 				
-				String dataSet = read(System.in, replace);
+				String dataSet = read(System.in, replace); //get dataset from function
 				
-				switch(format) {
-					case ARFF:
+				switch(format) { //check the format
+					case ARFF: //if it is ARFF get the stream and let weka use the arff default loader
 						ByteArrayInputStream in = new ByteArrayInputStream(dataSet.getBytes("utf-8"));
 						source = new DataSource(in);
 						data = source.getDataSet();
 					break;
 					
-					default:
+					default: //otherwise just use the CSV one
 						data = getInstancesFromCSV(dataSet);
 					break;
 				}
@@ -181,7 +181,7 @@ public class CustomJ48 {
 				data = Filter.useFilter(data, filter);
 			}
 
-			if (data.classIndex() == -1) // Setting the last attribute to be last one if not explicitly set
+			if (data.classIndex() == -1) // Setting the class attribute to be last one if not explicitly set
 				data.setClassIndex(data.numAttributes() - 1);
 
 			// Creating the tree object
@@ -225,7 +225,15 @@ public class CustomJ48 {
 		System.exit(0);
 
 	}
-
+	
+	/**
+	 * Function used to read a data set from STDIN or from a file (replacing underscores)
+	 * 
+	 * @param in Input stream used
+	 * @param replaceEmptyStrings are we replacing underscores
+	 * @return the data set as string
+	 * @throws ParseException if there is already a single underscore as attribute
+	 */
 	private static String read(InputStream in, boolean replaceEmptyStrings) throws ParseException {
 
 		// Read and replace the content of the dataset
@@ -233,26 +241,32 @@ public class CustomJ48 {
 		String newFile = "";
 		int lineNumber = 0;
 	
-		while (myScanner.hasNextLine()) {
+		while (myScanner.hasNextLine()) { //while we have another line
 
 			lineNumber++;
 			String fileLine = myScanner.nextLine().replaceAll("\\s*,\\s*", ",").trim(); // remove trailing and leading
 																						// spaces
-			if(replaceEmptyStrings) {
+			if(replaceEmptyStrings) { //if we are replacing 
 			
 				if (fileLine.contains(",_,")) // if it already contains an underscore throw an exception
 					throw new ParseException("Underscore character already found during replacement at line " + lineNumber);
 
 				newFile += fileLine.replaceAll(",,", ",_,") + "\n"; // otherwise replace empty strings with underscore
 			} else
-				newFile += fileLine + "\n";
+				newFile += fileLine + "\n"; //add it to content
 		}
 		
 		myScanner.close();
 
-		return newFile;
+		return newFile; //return the data set
 	}
 	
+	/**
+	 * Function used to get instances from a string representing a CSV file
+	 * @param file string representing the data set
+	 * @return an Instances object containing all instances
+	 * @throws IOException if the loader fails
+	 */
 	private static Instances getInstancesFromCSV(String file) throws IOException {
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(file.getBytes("utf-8")); // create the input

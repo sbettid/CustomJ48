@@ -1,15 +1,28 @@
 package inf.unibz.it.CustomJ48;
 
-import java.io.FileWriter;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierSplitModel;
 import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Instances;
 import weka.core.Utils;
+
 
 /**
  * 
@@ -38,6 +51,7 @@ public class CustomJ48Tree extends J48 {
 
 	// Id used to uniquely identify every node in the tree
 	private int id = 1;
+	private Document document;
 
 	// #########################################################################################
 	// ## ##
@@ -48,83 +62,144 @@ public class CustomJ48Tree extends J48 {
 	/**
 	 * Method to export the given tree in the GraphML format.
 	 * 
-	 * @param filepath path of the output file
+	 * @param writer The writer instance for the output
 	 * @param pruning  boolean value representing if we would like to apply our
 	 *                 pruning criteria or not
+	 * @param replace  boolean value representing if we are replacing back underscore                
+	 * @throws ParserConfigurationException  For misconfiguration
+	 * @throws TransformerException  If the XML Transformer is not able to write the XML file
 	 */
-	public void exportGraphML(PrintWriter writer, boolean pruning, boolean replace) {
+	public void exportGraphML(PrintWriter writer, boolean pruning, boolean replace) throws ParserConfigurationException, TransformerException {
 
-		// String builder used to store the content of the exported file
-		StringBuffer outputText = new StringBuffer();
-
-		// Writing graph attributes and head of the document
-		outputText.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-
-		outputText.append(
-				"<graphml xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml.html/2.0/ygraphml.xsd \" xmlns=\"http://graphml.graphdrawing.org/xmlns\" xmlns:demostyle=\"http://www.yworks.com/yFilesHTML/demos/FlatDemoStyle/1.0\" xmlns:bpmn=\"http://www.yworks.com/xml/yfiles-for-html/bpmn/2.0\" xmlns:demotablestyle=\"http://www.yworks.com/yFilesHTML/demos/FlatDemoTableStyle/1.0\" xmlns:uml=\"http://www.yworks.com/yFilesHTML/demos/UMLDemoStyle/1.0\" "
-						+ "xmlns:compat=\"http://www.yworks.com/xml/yfiles-compat-arrows/1.0\" xmlns:GraphvizNodeStyle=\"http://www.yworks.com/yFilesHTML/graphviz-node-style/1.0\" xmlns:VuejsNodeStyle=\"http://www.yworks.com/demos/yfiles-vuejs-node-style/1.0\" xmlns:y=\"http://www.yworks.com/xml/yfiles-common/3.0\" xmlns:x=\"http://www.yworks.com/xml/yfiles-common/markup/3.0\" xmlns:yjs=\"http://www.yworks.com/xml/yfiles-for-html/2.0/xaml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n");
 		
-		outputText.append("<graph edgedefault = \"directed\">");
+		 DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance(); //get a document factory instance
+		 
+         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder(); //get a document builder instance
+         
+         //get the document
+         document = documentBuilder.newDocument();
+       //Create the root element (graphml) with all the references to the schemas
+         Element root = document.createElement("graphml");
+         root.setAttribute("xsi:schemaLocation", "http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml.html/2.0/ygraphml.xsd");
+         root.setAttribute("xmlns", "http://graphml.graphdrawing.org/xmlns");
+         root.setAttribute("xmlns:demostyle", "http://www.yworks.com/yFilesHTML/demos/FlatDemoStyle/1.0");
+         root.setAttribute("xmlns:bpmn", "http://www.yworks.com/xml/yfiles-for-html/bpmn/2.0");
+         root.setAttribute("xmlns:demotablestyle", "http://www.yworks.com/yFilesHTML/demos/FlatDemoTableStyle/1.0");
+         root.setAttribute("xmlns:uml", "http://www.yworks.com/yFilesHTML/demos/UMLDemoStyle/1.0");
+         root.setAttribute("xmlns:compat", "http://www.yworks.com/xml/yfiles-compat-arrows/1.0");
+         root.setAttribute("xmlns:GraphvizNodeStyle", "http://www.yworks.com/yFilesHTML/graphviz-node-style/1.0");
+         root.setAttribute("xmlns:VuejsNodeStyle", "http://www.yworks.com/demos/yfiles-vuejs-node-style/1.0");
+         root.setAttribute("xmlns:y", "http://www.yworks.com/xml/yfiles-common/3.0");
+         root.setAttribute("xmlns:x", "http://www.yworks.com/xml/yfiles-common/markup/3.0");
+         root.setAttribute("xmlns:yjs", "http://www.yworks.com/xml/yfiles-for-html/2.0/xaml");
+         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+         document.appendChild(root);
+ 		
+         // Append the keys, so the types of the variables used to store labels
+ 		// attributes and descriptions
+		Element labelKey = document.createElement("key"); //Create the label key for yEd
+		labelKey.setAttribute("id", "lab");
+		labelKey.setAttribute("for", "node");
+		labelKey.setAttribute("attr.name", "NodeLabels");
+		labelKey.setAttribute("y:attr.uri", "http://www.yworks.com/xml/yfiles-common/2.0/NodeLabels");
+		root.appendChild(labelKey);
 		
-		// Append the keys, so the types of the variables used to store labels
-		// attributes and descriptions
-		outputText.append(
-				"<key id=\"lab\" for=\"node\" attr.name=\"NodeLabels\" y:attr.uri=\"http://www.yworks.com/xml/yfiles-common/2.0/NodeLabels\"/>\n");
-		outputText.append(
-				"<key id=\"edgeLab\" for=\"edge\" attr.name=\"EdgeLabels\" y:attr.uri=\"http://www.yworks.com/xml/yfiles-common/2.0/EdgeLabels\"/>\n");
-		outputText.append("<key id=\"desc\" for=\"all\" attr.name=\"description\" />\n");
+		Element edgeKey = document.createElement("key"); //Create the edge label key for yEd 
+		edgeKey.setAttribute("id", "edgeLab");
+		edgeKey.setAttribute("for", "edge");
+		edgeKey.setAttribute("attr.name", "EdgeLabels");
+		edgeKey.setAttribute("y:attr.uri", "http://www.yworks.com/xml/yfiles-common/2.0/EdgeLabels");
+		root.appendChild(edgeKey);
+		
+		Element descKey = document.createElement("key"); //create the description key, standard graphml 
+		descKey.setAttribute("id", "desc");
+		descKey.setAttribute("for", "all");
+		descKey.setAttribute("attr.name", "description");
+		root.appendChild(descKey);
+		
+		Element graph = document.createElement("graph"); //Create the graph element
+		graph.setAttribute("edgedefault", "directed");
+		root.appendChild(graph);
+		
+		//Create the root node structure, label will be added later in the if  
+		Element treeRoot = document.createElement("node");
+		treeRoot.setAttribute("id", "0");
+		graph.appendChild(treeRoot);
+		//Create the label structure
+		Element dataLab = document.createElement("data");
+		dataLab.setAttribute("key", "lab");
+		
+		Element xList = document.createElement("x:List");
+		
+		Element yLabel = document.createElement("y:Label");
 
-		// We analyze first the root and, if it is not a leaf, then we call the helper
-		// method to visit
-		// the children of the current node, recursing so on the structure
-
-		// If the root is a leaf print it directly
+		
+		// If the root is a leaf 
 		if (m_root.isLeaf()) {
 			try {
-				outputText.append("<node id=\"0\">\n");
-				outputText.append("\t<data key=\"lab\">\n");
-				outputText.append("\t\t<x:List>\n\t\t\t<y:Label>\n");
-				outputText.append("\t\t\t<y:Label.Text>" + m_root.getLocalModel().dumpLabel(0, m_root.getTrainingData())
-						+ "</y:Label.Text>\n");
-				outputText.append("\t\t\t</y:Label>\n\t\t</x:List>\n");
-				outputText.append("\t</data>\n");
-				outputText.append("\t<data key=\"desc\">"
-						+ m_root.getLocalModel().dumpLabel(0, m_root.getTrainingData()) + "</data>\n");
-				outputText.append("</node>\n");
-
+				//Get the right label
+				String text = m_root.getLocalModel().dumpLabel(0, m_root.getTrainingData());
+				//Add it to the node
+				Element yLabelText = document.createElement("y:Label.Text");
+				yLabelText.appendChild(document.createTextNode(text));
+				yLabel.appendChild(yLabelText);
+				
+				xList.appendChild(yLabel); //Append the stucture to the node
+				dataLab.appendChild(xList);
+				treeRoot.appendChild(dataLab);
+				
+				//Create also the standard GraphML description
+				Element dataDesc = document.createElement("data");
+				dataDesc.setAttribute("key", "desc");
+				dataDesc.appendChild(document.createTextNode(text));
+				
+				treeRoot.appendChild(dataDesc); //append the node and terminate, it was a leaf
+			
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else { // print the value of the root and then start printing the tree structure
 
-			// Append node description and label
-			outputText.append("<node id=\"0\">\n");
-			outputText.append("\t<data key=\"lab\">\n");
-			outputText.append("\t\t<x:List>\n\t\t\t<y:Label>\n");
-			outputText.append("\t\t\t<y:Label.Text>" + m_root.getLocalModel().leftSide(m_root.getTrainingData())
-					+ "</y:Label.Text>\n");
-			outputText.append("\t\t\t</y:Label>\n\t\t</x:List>\n");
-			outputText.append("\t</data>\n");
-			outputText.append(
-					"\t<data key=\"desc\">" + m_root.getLocalModel().leftSide(m_root.getTrainingData()) + "</data>\n");
-			outputText.append("</node>\n");
-
+			//Get the right label
+			String text = m_root.getLocalModel().leftSide(m_root.getTrainingData());
+			
+			//Add it to the structure
+			Element yLabelText = document.createElement("y:Label.Text");
+			yLabelText.appendChild(document.createTextNode(text));
+			yLabel.appendChild(yLabelText);
+			
+			xList.appendChild(yLabel); //Append everything
+			dataLab.appendChild(xList);
+			treeRoot.appendChild(dataLab);
+			//Add also the description
+			Element dataDesc = document.createElement("data");
+			dataDesc.setAttribute("key", "desc");
+			dataDesc.appendChild(document.createTextNode(text));
+			
+			treeRoot.appendChild(dataDesc);
+			
 			// traverse the tree recurring on the sons
-			exportGraphML(m_root, 0, outputText, pruning, replace);
+			exportGraphML(m_root, 0, graph, pruning, replace);
 
 		}
 		
-		outputText.append("</graph>");
-		outputText.append("</graphml>\n");
-
 		// Writing everything on the user's specified file
-		//writeOnStream(writer, outputText, escapeChars);
-		writer.print(outputText);
-		writer.close();
+		
+		TransformerFactory transformerFactory = TransformerFactory.newInstance(); //get the transformere
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes"); //Forma the file with new lines and indentations
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        
+        DOMSource domSource = new DOMSource(document); //give the source
+        StreamResult streamResult = new StreamResult(writer); //give the destination
 
-		// Resetting variables
+        transformer.transform(domSource, streamResult); //write
+
+		// Resetting variables and close stream
 		id = 1;
-
+		writer.close();
+		
 		// Confirm everything went smooth
 		System.out.println("GraphML export completed!");
 	}
@@ -135,10 +210,11 @@ public class CustomJ48Tree extends J48 {
 	 * 
 	 * @param currentNode The current node analyzed, at the beginning the root node
 	 * @param parentId    The id of the parent node
-	 * @param sb          The string buffer used in the previous exportGraphML
-	 *                    method to append the result of the current visit
+	 * @param graph       DOM element representing the final graph, used to add nodes
+	 * @param pruning	  boolean value representing if we are pruning branches or not	  
+	 * @param replace	  boolean value representing if we are replacing back underscores or not
 	 */
-	private void exportGraphML(ClassifierTree currentNode, int parentId, StringBuffer sb, boolean pruning, boolean replace) {
+	private void exportGraphML(ClassifierTree currentNode, int parentId, Element graph, boolean pruning, boolean replace) {
 
 		try {
 
@@ -153,56 +229,77 @@ public class CustomJ48Tree extends J48 {
 			for (int i = 0; i < sons.length; i++) {
 
 				double nInstances = sons[i].getLocalModel().distribution().total();
-				// System.out.println("At the node " + label + ": " + nInstances + "
-				// instances");
-
+				
+				//If we are not pruning or there are some instances
 				if (!pruning || nInstances > 0) {
-
+					
+					// Create the node element with the id
+					Element current = document.createElement("node");
+					current.setAttribute("id", id + "");
+					//Create the data label structure
+					Element dataLab = document.createElement("data");
+					dataLab.setAttribute("key", "lab");
+					
+					Element xList = document.createElement("x:List");
+					
+					Element yLabel = document.createElement("y:Label");
+					
 					if (sons[i].isLeaf()) { // if the son is a leaf
 
 						String label = localModel.dumpLabel(i, trainingData); // get the class label
 
-						// System.out.println("At the node " + label + ": " + nInstances + "
-						// instances");
-
-						// Writing the leaf node and both its label/description for cross compatibility
-						sb.append("<node id=\"" + id + "\">\n");
-						sb.append("\t<data key=\"lab\">\n");
-						sb.append("\t\t<x:List>\n\t\t\t<y:Label>\n");
-						sb.append("\t\t\t<y:Label.Text>" + label + "</y:Label.Text>\n");
-						sb.append("\t\t\t</y:Label>\n\t\t</x:List>\n");
-						sb.append("\t</data>\n");
-						sb.append("\t<data key=\"desc\">" + label + "</data>\n");
-						sb.append("</node>\n");
-
+						//Add the class label to the label structure
+						Element yLabelText = document.createElement("y:Label.Text");
+						yLabelText.appendChild(document.createTextNode(label));
+						yLabel.appendChild(yLabelText);
+						
+						//Add everything to the node
+						xList.appendChild(yLabel);
+						dataLab.appendChild(xList);
+						current.appendChild(dataLab);
+						
+						//Create also the description with the same class label for cross compatibility
+						Element dataDesc = document.createElement("data");
+						dataDesc.setAttribute("key", "desc");
+						dataDesc.appendChild(document.createTextNode(label));
+						
+						current.appendChild(dataDesc);
+						
+						graph.appendChild(current); //add node to graph
+						
 						// Writing edge between current node and its son
-						writeEdge(localModel, trainingData, parentId, i, sb, replace);
+						writeEdge(localModel, trainingData, parentId, i, graph, replace);
 
 						id++; // increment the node id
 					} else {
-
+						
+						//get the correct label
 						String label = sons[i].getLocalModel().leftSide(sons[i].getTrainingData());
 
-						// System.out.println("At the node " + label + ": " + nInstances + "
-						// instances");
-
-						// Writing a non-leaf node and both its label/description for cross
-						// compatibility
-						sb.append("<node id=\"" + id + "\">\n");
-						sb.append("\t<data key=\"lab\">\n");
-						sb.append("\t\t<x:List>\n\t\t\t<y:Label>\n");
-						sb.append("\t\t\t<y:Label.Text>" + label + "</y:Label.Text>\n");
-						sb.append("\t\t\t</y:Label>\n\t\t</x:List>\n");
-						sb.append("\t</data>\n");
-						sb.append("\t<data key=\"desc\">" + label + "</data>\n");
-						sb.append("</node>\n");
+						//Add the label to the structure 
+						Element yLabelText = document.createElement("y:Label.Text");
+						yLabelText.appendChild(document.createTextNode(label));
+						yLabel.appendChild(yLabelText);
+						//Append everything to the node
+						xList.appendChild(yLabel);
+						dataLab.appendChild(xList);
+						current.appendChild(dataLab);
+						
+						//Write description for cross compatibility
+						Element dataDesc = document.createElement("data");
+						dataDesc.setAttribute("key", "desc");
+						dataDesc.appendChild(document.createTextNode(label));
+						
+						current.appendChild(dataDesc);
+						
+						graph.appendChild(current);//add node to graph
 
 						// Writing edge between current node and its son
-						writeEdge(localModel, trainingData, parentId, i, sb, replace);
+						writeEdge(localModel, trainingData, parentId, i, graph, replace);
 
 						id++; // increment the node id
 
-						exportGraphML(sons[i], id - 1, sb, pruning, replace); // recur on the son
+						exportGraphML(sons[i], id - 1, graph, pruning, replace); // recur on the sons
 					}
 				}
 			}
@@ -222,27 +319,48 @@ public class CustomJ48Tree extends J48 {
 	 * @param trainingData The training data at the current node
 	 * @param parentId     The id of the parent node
 	 * @param current      The id of the current node
-	 * @param sb           The string builder used to append the edge
+	 * @param graph        DOM element representing the final graph
+	 * @param replace	   Boolean value representing if we are replacing back underscores or not
 	 */
 	private void writeEdge(ClassifierSplitModel localModel, Instances trainingData, int parentId, int current,
-			StringBuffer sb, boolean replace) {
+			Element graph, boolean replace) {
 		
-		String labelText = localModel.rightSide(current, trainingData).trim();
+		String labelText = localModel.rightSide(current, trainingData).trim(); //taking edge label
 		
-		if(replace) {
+		if(replace) { //if we are replacing
 			
-			labelText = replace_underscore(labelText);
+			labelText = replace_underscore(labelText); //get the resulting label from the replacing function
 		}
 			
 		// Writing edge between current node and its son
-		sb.append("<edge id=\"e" + id + " \" source=\"" + parentId + "\" target=\"" + id + "\" >\n");
-		sb.append("\t<data key=\"edgeLab\">\n");
-		sb.append("\t\t<x:List>\n\t\t\t<y:Label>\n");
-		sb.append("\t\t\t<y:Label.Text>" + labelText + "</y:Label.Text>\n");
-		sb.append("\t\t\t</y:Label>\n\t\t</x:List>\n");
-		sb.append("\t</data>\n");
-		sb.append("\t<data key=\"desc\">" + labelText + "</data>\n");
-		sb.append("</edge>\n");
+		//Create the element with the ids of source and destination
+		Element edge = document.createElement("edge");
+		edge.setAttribute("id", "e" + id);
+		edge.setAttribute("source", "" + parentId);
+		edge.setAttribute("target", "" + id);
+		//create the data label structure
+		Element dataLab = document.createElement("data");
+		dataLab.setAttribute("key", "edgeLab");
+		
+		Element xList = document.createElement("x:List");
+		Element yLabel = document.createElement("y:Label");
+		//Add the label text
+		Element yLabelText = document.createElement("y:Label.Text");
+		yLabelText.appendChild(document.createTextNode(labelText));
+		
+		//add everything to the node
+		yLabel.appendChild(yLabelText);
+		xList.appendChild(yLabel);
+		dataLab.appendChild(xList);
+		edge.appendChild(dataLab);
+		
+		//Alwasy standard description for cross compatibility
+		Element dataDesc = document.createElement("data");
+		dataDesc.setAttribute("key", "desc");
+		dataDesc.appendChild(document.createTextNode(labelText));
+		edge.appendChild(dataDesc);
+		
+		graph.appendChild(edge); //add edge to graph
 	}
 
 	// #########################################################################################
