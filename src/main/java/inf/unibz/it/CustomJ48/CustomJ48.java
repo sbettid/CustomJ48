@@ -240,7 +240,9 @@ public class CustomJ48 {
 		Scanner myScanner = new Scanner(in, "utf-8");
 		String newFile = "";
 		int lineNumber = 0;
-	
+		
+		System.out.print("Insert your data set:");
+		
 		while (myScanner.hasNextLine()) { //while we have another line
 
 			lineNumber++;
