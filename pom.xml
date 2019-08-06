@@ -14,7 +14,7 @@
 	</properties>
 
 	<scm>
-		<developerConnection>scm:git:ssh//gitlab.inf.unibz.it/Davide.Sbetti/customj48.git</developerConnection>
+		<developerConnection>scm|git|git@gitlab.inf.unibz.it:Davide.Sbetti/customj48.git</developerConnection>
 	  <tag>v0.2.4</tag>
   </scm>
 
