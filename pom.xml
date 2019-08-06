@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>inf.unibz.it</groupId>
 	<artifactId>customj48</artifactId>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.4</version>
 	<packaging>jar</packaging>
 
 	<name>CustomJ48</name>
@@ -17,7 +15,8 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh//gitlab.inf.unibz.it/Davide.Sbetti/customj48.git</developerConnection>
-	</scm>
+	  <tag>v0.2.4</tag>
+  </scm>
 
 	<build>
 		<plugins>
