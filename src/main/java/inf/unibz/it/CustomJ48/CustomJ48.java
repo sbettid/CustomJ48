@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Scanner;
 import java.util.logging.LogManager;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -38,7 +40,9 @@ public class CustomJ48 {
 	public enum InputFormat{
 		CSV, ARFF;
 	}
-
+	
+	static InputFormat format;
+	
 	public static void main(String[] args) {
 
 		LogManager.getLogManager().reset(); // Prevent the system from continuously writing logs to the console
@@ -57,7 +61,7 @@ public class CustomJ48 {
 		// The 'e' option allows the user to decide the export format (graphml, dot and
 		// json), default is dot
 		Option exportFormat = Option.builder("e").argName("format").hasArg()
-				.desc("specify the export format (graphml, dot, json). Default is: dot").build();
+				.desc("specify the export format (dot, json). Default is: dot").build();
 
 		// The 'e' option allows the user to decide the export format (graphml, dot and
 		// json), default is dot
@@ -135,7 +139,7 @@ public class CustomJ48 {
 				if (line.hasOption("r") && !DataSource.isArff(path)) { //if the user wants replace and file is CSV
 					replace = true;
 					
-					String dataSet = read(new FileInputStream(new File(path)), replace); //read and replace
+					String dataSet = read(new FileInputStream(new File(path)), replace, true); //read and replace
 
 					data = getInstancesFromCSV(dataSet);
 				
@@ -146,7 +150,7 @@ public class CustomJ48 {
 
 			} else { //the input comes from STDIN
 				
-				InputFormat format = InputFormat.CSV;
+				format = InputFormat.CSV;
 				
 				if(line.hasOption("i") && line.getOptionValue("i").equals("arff")) //change default format if specified
 					format = InputFormat.ARFF;
@@ -154,7 +158,7 @@ public class CustomJ48 {
 				if(line.hasOption("r") && format.equals(InputFormat.CSV)) //if user wants replace and file is CSV
 					replace = true;
 				
-				String dataSet = read(System.in, replace); //get dataset from function
+				String dataSet = read(System.in, replace, false); //get dataset from function
 				
 				switch(format) { //check the format
 					case ARFF: //if it is ARFF get the stream and let weka use the arff default loader
@@ -234,14 +238,19 @@ public class CustomJ48 {
 	 * @return the data set as string
 	 * @throws ParseException if there is already a single underscore as attribute
 	 */
-	private static String read(InputStream in, boolean replaceEmptyStrings) throws ParseException {
+	private static String read(InputStream in, boolean replaceEmptyStrings, boolean isFile) throws ParseException {
 
 		// Read and replace the content of the dataset
 		Scanner myScanner = new Scanner(in, "utf-8");
 		String newFile = "";
 		int lineNumber = 0;
 		
-		System.out.print("Insert your data set:");
+		Pattern p = Pattern.compile("\\b_\\b"); //create RegEx to find pre-existing underscores
+		Matcher m = p.matcher("");  //create empty matcher so we can reuse the same without creating different objects, 
+		//less memory is so used
+		
+		if(!isFile) //show message only for STDIN input
+			System.out.print("Insert your " + format.toString() + " data set:");
 		
 		while (myScanner.hasNextLine()) { //while we have another line
 
@@ -249,8 +258,9 @@ public class CustomJ48 {
 			String fileLine = myScanner.nextLine().replaceAll("\\s*,\\s*", ",").trim(); // remove trailing and leading
 																						// spaces
 			if(replaceEmptyStrings) { //if we are replacing 
+				m = m.reset(fileLine); //set the matcher to the current line
 			
-				if (fileLine.contains(",_,")) // if it already contains an underscore throw an exception
+				if (m.find()) // if it already contains an underscore throw an exception
 					throw new ParseException("Underscore character already found during replacement at line " + lineNumber);
 
 				newFile += fileLine.replaceAll(",,", ",_,") + "\n"; // otherwise replace empty strings with underscore

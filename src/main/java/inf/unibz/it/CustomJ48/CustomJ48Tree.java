@@ -80,42 +80,45 @@ public class CustomJ48Tree extends J48 {
          document = documentBuilder.newDocument();
        //Create the root element (graphml) with all the references to the schemas
          Element root = document.createElement("graphml");
-         root.setAttribute("xsi:schemaLocation", "http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml.html/2.0/ygraphml.xsd");
          root.setAttribute("xmlns", "http://graphml.graphdrawing.org/xmlns");
-         root.setAttribute("xmlns:demostyle", "http://www.yworks.com/yFilesHTML/demos/FlatDemoStyle/1.0");
+         root.setAttribute("xmlns:java", "http://www.yworks.com/xml/yfiles-common/1.0/java");
+         root.setAttribute("xmlns:sys", "http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0");
          root.setAttribute("xmlns:bpmn", "http://www.yworks.com/xml/yfiles-for-html/bpmn/2.0");
-         root.setAttribute("xmlns:demotablestyle", "http://www.yworks.com/yFilesHTML/demos/FlatDemoTableStyle/1.0");
-         root.setAttribute("xmlns:uml", "http://www.yworks.com/yFilesHTML/demos/UMLDemoStyle/1.0");
-         root.setAttribute("xmlns:compat", "http://www.yworks.com/xml/yfiles-compat-arrows/1.0");
-         root.setAttribute("xmlns:GraphvizNodeStyle", "http://www.yworks.com/yFilesHTML/graphviz-node-style/1.0");
-         root.setAttribute("xmlns:VuejsNodeStyle", "http://www.yworks.com/demos/yfiles-vuejs-node-style/1.0");
-         root.setAttribute("xmlns:y", "http://www.yworks.com/xml/yfiles-common/3.0");
-         root.setAttribute("xmlns:x", "http://www.yworks.com/xml/yfiles-common/markup/3.0");
-         root.setAttribute("xmlns:yjs", "http://www.yworks.com/xml/yfiles-for-html/2.0/xaml");
+         root.setAttribute("xmlns:x", "http://www.yworks.com/xml/yfiles-common/markup/2.0");
          root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+         root.setAttribute("xmlns:y", "http://www.yworks.com/xml/graphml");
+         root.setAttribute("xmlns:yed", "http://www.yworks.com/xml/yed/3");
+         root.setAttribute("xsi:schemaLocation", "http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd");
+       
          document.appendChild(root);
  		
          // Append the keys, so the types of the variables used to store labels
  		// attributes and descriptions
-		Element labelKey = document.createElement("key"); //Create the label key for yEd
-		labelKey.setAttribute("id", "lab");
-		labelKey.setAttribute("for", "node");
-		labelKey.setAttribute("attr.name", "NodeLabels");
-		labelKey.setAttribute("y:attr.uri", "http://www.yworks.com/xml/yfiles-common/2.0/NodeLabels");
-		root.appendChild(labelKey);
+		Element graphmlKey = document.createElement("key"); //Create the label key for yEd
+		graphmlKey.setAttribute("id", "d7");
+		graphmlKey.setAttribute("for", "graphml");
+		graphmlKey.setAttribute("yfiles.type", "resources");
 		
-		Element edgeKey = document.createElement("key"); //Create the edge label key for yEd 
-		edgeKey.setAttribute("id", "edgeLab");
-		edgeKey.setAttribute("for", "edge");
-		edgeKey.setAttribute("attr.name", "EdgeLabels");
-		edgeKey.setAttribute("y:attr.uri", "http://www.yworks.com/xml/yfiles-common/2.0/EdgeLabels");
-		root.appendChild(edgeKey);
+		root.appendChild(graphmlKey);
 		
+				
 		Element descKey = document.createElement("key"); //create the description key, standard graphml 
 		descKey.setAttribute("id", "desc");
 		descKey.setAttribute("for", "all");
 		descKey.setAttribute("attr.name", "description");
 		root.appendChild(descKey);
+		
+		Element labKey = document.createElement("key"); //create the node key
+		labKey.setAttribute("id", "d6");
+		labKey.setAttribute("for", "node");
+		labKey.setAttribute("yfiles.type", "nodegraphics");
+		root.appendChild(labKey);
+		
+		Element edgeKey = document.createElement("key"); //create the edge key
+		edgeKey.setAttribute("id", "d10");
+		edgeKey.setAttribute("for", "edge");
+		edgeKey.setAttribute("yfiles.type", "edgegraphics");
+		root.appendChild(edgeKey);
 		
 		Element graph = document.createElement("graph"); //Create the graph element
 		graph.setAttribute("edgedefault", "directed");
@@ -127,12 +130,10 @@ public class CustomJ48Tree extends J48 {
 		graph.appendChild(treeRoot);
 		//Create the label structure
 		Element dataLab = document.createElement("data");
-		dataLab.setAttribute("key", "lab");
+		dataLab.setAttribute("key", "d6");
 		
-		Element xList = document.createElement("x:List");
+		Element xList = document.createElement("y:ShapeNode");
 		
-		Element yLabel = document.createElement("y:Label");
-
 		
 		// If the root is a leaf 
 		if (m_root.isLeaf()) {
@@ -140,11 +141,10 @@ public class CustomJ48Tree extends J48 {
 				//Get the right label
 				String text = m_root.getLocalModel().dumpLabel(0, m_root.getTrainingData());
 				//Add it to the node
-				Element yLabelText = document.createElement("y:Label.Text");
-				yLabelText.appendChild(document.createTextNode(text));
-				yLabel.appendChild(yLabelText);
+				Element yLabelText = document.createElement("y:NodeLabel");
 				
-				xList.appendChild(yLabel); //Append the stucture to the node
+				yLabelText.appendChild(document.createTextNode(text));
+				xList.appendChild(yLabelText);
 				dataLab.appendChild(xList);
 				treeRoot.appendChild(dataLab);
 				
@@ -165,11 +165,11 @@ public class CustomJ48Tree extends J48 {
 			String text = m_root.getLocalModel().leftSide(m_root.getTrainingData());
 			
 			//Add it to the structure
-			Element yLabelText = document.createElement("y:Label.Text");
+			Element yLabelText = document.createElement("y:NodeLabel");
 			yLabelText.appendChild(document.createTextNode(text));
-			yLabel.appendChild(yLabelText);
+			xList.appendChild(yLabelText);
 			
-			xList.appendChild(yLabel); //Append everything
+			
 			dataLab.appendChild(xList);
 			treeRoot.appendChild(dataLab);
 			//Add also the description
@@ -236,25 +236,24 @@ public class CustomJ48Tree extends J48 {
 					// Create the node element with the id
 					Element current = document.createElement("node");
 					current.setAttribute("id", id + "");
-					//Create the data label structure
+					graph.appendChild(current);
+					//Create the label structure
 					Element dataLab = document.createElement("data");
-					dataLab.setAttribute("key", "lab");
+					dataLab.setAttribute("key", "d6");
 					
-					Element xList = document.createElement("x:List");
-					
-					Element yLabel = document.createElement("y:Label");
+					Element xList = document.createElement("y:ShapeNode");
 					
 					if (sons[i].isLeaf()) { // if the son is a leaf
 
 						String label = localModel.dumpLabel(i, trainingData); // get the class label
 
 						//Add the class label to the label structure
-						Element yLabelText = document.createElement("y:Label.Text");
+						Element yLabelText = document.createElement("y:NodeLabel");
 						yLabelText.appendChild(document.createTextNode(label));
-						yLabel.appendChild(yLabelText);
+						xList.appendChild(yLabelText);
 						
 						//Add everything to the node
-						xList.appendChild(yLabel);
+						
 						dataLab.appendChild(xList);
 						current.appendChild(dataLab);
 						
@@ -277,11 +276,12 @@ public class CustomJ48Tree extends J48 {
 						String label = sons[i].getLocalModel().leftSide(sons[i].getTrainingData());
 
 						//Add the label to the structure 
-						Element yLabelText = document.createElement("y:Label.Text");
+						Element yLabelText = document.createElement("y:NodeLabel");
 						yLabelText.appendChild(document.createTextNode(label));
-						yLabel.appendChild(yLabelText);
+						xList.appendChild(yLabelText);
+						
 						//Append everything to the node
-						xList.appendChild(yLabel);
+						
 						dataLab.appendChild(xList);
 						current.appendChild(dataLab);
 						
@@ -340,17 +340,16 @@ public class CustomJ48Tree extends J48 {
 		edge.setAttribute("target", "" + id);
 		//create the data label structure
 		Element dataLab = document.createElement("data");
-		dataLab.setAttribute("key", "edgeLab");
+		dataLab.setAttribute("key", "d10");
 		
-		Element xList = document.createElement("x:List");
-		Element yLabel = document.createElement("y:Label");
+		Element xList = document.createElement("y:PolyLineEdge");
+		
 		//Add the label text
-		Element yLabelText = document.createElement("y:Label.Text");
+		Element yLabelText = document.createElement("y:EdgeLabel");
 		yLabelText.appendChild(document.createTextNode(labelText));
 		
 		//add everything to the node
-		yLabel.appendChild(yLabelText);
-		xList.appendChild(yLabel);
+		xList.appendChild(yLabelText);
 		dataLab.appendChild(xList);
 		edge.appendChild(dataLab);
 		

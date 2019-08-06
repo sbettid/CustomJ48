@@ -6,9 +6,8 @@ The goal of this extension was to add the ability to export the generated decisi
 
 ## Export formats
 
-Trees generated using the J48 class can be exported in three different formats:
+Trees generated using the J48 class can be exported in two different formats:
 
-- GraphML format, whose specification can be found [here](http://graphml.graphdrawing.org/), with some graphical adjustments that allow a correct visualization using the yED editor (accessible also in a [browser live version](https://www.yworks.com/yed-live/)). 
 - DOT format, used also as default by Weka
 - JSON format, based on the following specification: 
 
@@ -34,6 +33,8 @@ The tree is specified in a recursive way, where each node, except the leafs, con
 Trees exported using the described JSON format can be used directly as input of the chatbot interpreter, the second software part of the Bachelor Thesis, that can be found [at this address](https://gitlab.inf.unibz.it/Davide.Sbetti/bot_interpreter). 
 
 Independently from the chosen export format, it is possible to activate the pruning and empty string capabilities.
+
+**Note**: an extra export format is available: GraphML. However, the format does not specify the graphical specification of the graph by default. We added the graphical specification of the yED editor, accessible also freely online, but due to the instability in the interpretation of the format, this possibility is not mentioned in the standard documentation. Nevertheless, if you would like to use it, just use 'graphml' as export format for the '-e' option, see the [Usage section](#usage) for more. We cannot guarantee the interpretation will be the correct one. 
 
 ## Pruning feature
 
@@ -62,24 +63,26 @@ here on GitLab at the following address [address goes here]. Once downloaded, yo
 	1. Make sure that you have Maven installed. If that is not the case, you can download the latest version from the [Maven website](https://maven.apache.org/). 
 	2. Clone this repository to your local folder
 	3. Modify the sources as needed
-	4. Run the software using either your IDE (but please, remember to pass the necessary console arguments as explained in the [Usage section](#usage)) or generate your compiled JAR, containing all the required dependencies in one package,  with the following command: `mvn clean compile assembly:single`. For more instructions on the precise usage, the next section could be helpful. 
+	4. Run the software using either your IDE or generate your compiled JAR, containing all the required dependencies in one package,  with the following command: `mvn clean compile assembly:single`. For more instructions on the precise usage, the next section could be helpful. 
 
 ## Usage
 
-The software is a command line application that supports the following parameters: 
+The software is a command line application that requires as input a data set. If no options are applied, the software, once launched, will prompt the user to enter a CSV data set from STDIN. The input format from STDIN can be changed using the associated parameter. In general, the following options are available: 
 
 ```
 usage: customj48
- -d <dataset>   Specifies the path of the dataset (REQUIRED)
- -e <format>    specify the export format (graphml, dot, json). Default
-                is: dot
+ -d <dataset>   Specifies the path of the dataset
+ -e <format>    specify the export format (dot, json). Default is: dot
  -f <file>      Output the export code to the given file
- -h             Print this help message
+ -h             Prints this help message
+ -i <format>    input format for STDIN data set input (csv, arff). Default
+                is: csv
  -p             Enable the pruning feature
  -r             Replace empty strings (with _) to make them actual values
+ -v             Prints the software version
 ```
 
-The `-d` option is the only one required, it specifies the data set file that will be used to build the decison tree. 
+The `-d` option specifies the data set file that will be used to build the decison tree. 
 The accepted formats are all the ones accepted by the Weka library and therefore both ARFF and CSV. When a CSV file is used, the first line should contain the attributes list, with the class attribute as last one.
 
 The `-e` option specifies the desired format for the export of the tree. The default one is DOT, but GRAPHML and JSON are also available. See more details about the export formats in the [dedicated section](#export-formats). 
@@ -88,6 +91,8 @@ PS: if you use the JSON format and you are interested in the creation of chatbot
 The `-f` option specifies a file path that is used to export the decision tree, in the desired format, to a file instead of using the console, which is the default option.
 
 The `-h` option prints the help message.
+
+The `-i` option specifies the input format in case of STDIN. The available options are CSV and ARFF, with CSV as default value. 
 
 The `-p` option enables the custom pruning feature described in the [pruning section](#pruning-feature). 
 

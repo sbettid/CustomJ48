@@ -15,6 +15,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<scm>
+		<developerConnection>scm:git:ssh//gitlab.inf.unibz.it/Davide.Sbetti/customj48.git</developerConnection>
+	</scm>
 
 	<build>
 		<plugins>
@@ -35,15 +38,27 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
+					<finalName>customj48</finalName>
 					<archive>
 						<manifest>
 							<mainClass>inf.unibz.it.CustomJ48.CustomJ48</mainClass>
 						</manifest>
 					</archive>
+					<outputDirectory>${project.basedir}/jar</outputDirectory>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				 <configuration>
+          			<tagNameFormat>v@{project.version}</tagNameFormat>
+        		 </configuration>
 			</plugin>
 
 		</plugins>
@@ -63,7 +78,7 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.4</version>
 		</dependency>
-	
+
 	</dependencies>
 
 </project>
