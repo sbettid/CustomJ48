@@ -96,7 +96,7 @@ public class CustomJ48 {
 
 			// Print Software version
 			if (line.hasOption("v")) {
-				System.out.println("CustomJ48 version 0.1.1");
+				System.out.println("CustomJ48 version 0.2.4");
 				return;
 			}
 
