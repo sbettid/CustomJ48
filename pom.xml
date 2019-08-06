@@ -3,7 +3,7 @@
 
 	<groupId>inf.unibz.it</groupId>
 	<artifactId>customj48</artifactId>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.4</version>
 	<packaging>jar</packaging>
 
 	<name>CustomJ48</name>
