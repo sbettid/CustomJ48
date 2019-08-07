@@ -67,3 +67,6 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+#custom push tag script
+pushTag.sh

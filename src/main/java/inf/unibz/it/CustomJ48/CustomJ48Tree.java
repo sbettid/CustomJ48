@@ -4,6 +4,7 @@ package inf.unibz.it.CustomJ48;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -412,9 +413,10 @@ public class CustomJ48Tree extends J48 {
 		text.append("digraph J48Tree {\n");
 		// If it is a leaf
 		if (m_root.isLeaf()) {
-
+			
+			String nodeLab = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(model.dumpLabel(0, m_root.getTrainingData())));
 			// we append the node
-			text.append("N0 [label=\"" + Utils.backQuoteChars(model.dumpLabel(0, m_root.getTrainingData())) + "\" "
+			text.append("N0 [label=\"" + nodeLab + "\" "
 					+ "shape=box style=filled ");
 			if (m_root.getTrainingData() != null && m_root.getTrainingData().numInstances() > 0) { // with its
 																									// information
@@ -424,8 +426,10 @@ public class CustomJ48Tree extends J48 {
 			}
 			text.append("]\n");
 		} else {
+			
+			String nodeLab = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(model.leftSide(m_root.getTrainingData())));
 			// if it is not a leaf, we append the node and its information
-			text.append("N0 [label=\"" + Utils.backQuoteChars(model.leftSide(m_root.getTrainingData())) + "\" ");
+			text.append("N0 [label=\"" + nodeLab + "\" ");
 			if (m_root.getTrainingData() != null && m_root.getTrainingData().numInstances() > 0) {
 				text.append("data =\n" + m_root.getTrainingData() + "\n");
 				text.append(",\n");
@@ -470,7 +474,7 @@ public class CustomJ48Tree extends J48 {
 
 				// System.out.println("At the current node : " + nInstances + "instances");
 					
-					String labelText = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
+					String labelText = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim()));
 					
 					if(replace)
 						labelText = replace_underscore(labelText);
@@ -481,8 +485,11 @@ public class CustomJ48Tree extends J48 {
 				// and its information
 
 				if (sons[i].isLeaf()) {
+					
+					String nodeLab = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(localModel.dumpLabel(i, trainingData)));
+					
 					// If it is a leaf after writing its information we are done
-					text.append("N" + id + " [label=\"" + Utils.backQuoteChars(localModel.dumpLabel(i, trainingData))
+					text.append("N" + id + " [label=\"" + nodeLab
 							+ "\" " + "shape=box style=filled ");
 					if (trainingData != null && trainingData.numInstances() > 0) {
 						text.append("data =\n" + sons[i].getTrainingData() + "\n");
@@ -491,11 +498,12 @@ public class CustomJ48Tree extends J48 {
 					text.append("]\n");
 					id++;
 				} else {
-
+					
+					String nodeLab = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(sons[i].getLocalModel().leftSide(trainingData)));
 					
 						// otherwise we recur on the sons
 						text.append("N" + id + " [label=\""
-								+ Utils.backQuoteChars(sons[i].getLocalModel().leftSide(trainingData)) + "\" ");
+								+ nodeLab + "\" ");
 						if (trainingData != null && trainingData.numInstances() > 0) {
 							text.append("data =\n" + sons[i].getTrainingData() + "\n");
 							text.append(",\n");

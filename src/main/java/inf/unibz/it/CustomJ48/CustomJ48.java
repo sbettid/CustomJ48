@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.LogManager;
 import java.util.regex.Matcher;
@@ -96,7 +97,9 @@ public class CustomJ48 {
 
 			// Print Software version
 			if (line.hasOption("v")) {
-				System.out.println("CustomJ48 version 0.2.4");
+				final Properties properties = new Properties();
+				properties.load(CustomJ48.class.getClassLoader().getResourceAsStream("project.properties"));
+				System.out.println("CustomJ48 version" + properties.getProperty("version"));
 				return;
 			}
 
