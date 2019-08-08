@@ -97,9 +97,11 @@ public class CustomJ48 {
 
 			// Print Software version
 			if (line.hasOption("v")) {
-				final Properties properties = new Properties();
-				properties.load(CustomJ48.class.getClassLoader().getResourceAsStream("project.properties"));
-				System.out.println("CustomJ48 version" + properties.getProperty("version"));
+				final Properties properties = new Properties(); //Create property object
+				//Load the project properties from the associated file src/main/resources
+				//it will cotain the software version extracted directly from the POM file 
+				properties.load(CustomJ48.class.getClassLoader().getResourceAsStream("project.properties")); 
+				System.out.println("CustomJ48 version " + properties.getProperty("version")); //print it
 				return;
 			}
 
@@ -124,9 +126,9 @@ public class CustomJ48 {
 			// and we change it only if the -e option has been specified
 
 			if (line.hasOption("e")) {
-				if (line.getOptionValue("e").equals("graphml"))
+				if (line.getOptionValue("e").equals("graphml")) //change it to graphml
 					export = ExportFormat.GRAPHML;
-				else if (line.getOptionValue("e").equals("json"))
+				else if (line.getOptionValue("e").equals("json")) //change it to json
 					export = ExportFormat.JSON;
 			}
 
@@ -210,6 +212,7 @@ public class CustomJ48 {
 				break;
 			case JSON:
 				tree.JSONExport(writer, pruning, replace);
+				break;
 			default:
 				tree.dotExport(writer, pruning, replace);
 				break;

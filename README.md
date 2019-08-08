@@ -8,7 +8,7 @@ The goal of this extension was to add the ability to export the generated decisi
 
 Trees generated using the J48 class can be exported in two different formats:
 
-- DOT format, used also as default by Weka
+- DOT format, used also as default by Weka. When exporting with this format, node and edge labels are escaped according to HTML specification, in order to encode properly some characters that, in case of a wrong visualization, would make the tree less understandable.
 - JSON format, based on the following specification: 
 
 ```
@@ -34,7 +34,7 @@ Trees exported using the described JSON format can be used directly as input of 
 
 Independently from the chosen export format, it is possible to activate the pruning and empty string capabilities.
 
-**Note**: an extra export format is available: GraphML. However, the format does not specify the graphical specification of the graph by default. We added the graphical specification of the yED editor, accessible also freely online, but due to the instability in the interpretation of the format, this possibility is not mentioned in the standard documentation. Nevertheless, if you would like to use it, just use 'graphml' as export format for the '-e' option, see the [Usage section](#usage) for more. We cannot guarantee the interpretation will be the correct one. 
+**Note**: an extra export format is available: GraphML. However, the format does not specify the graphical specification of the graph by default. We added the graphical specification of the yED editor, accessible also freely online, but due to the instability in the interpretation of the format, this possibility is not mentioned in the standard documentation. Nevertheless, if you would like to use it, just use 'graphml' as export format for the '-e' option, see the [Usage section](#usage) for more. We cannot guarantee the interpretation will be the intended one. 
 
 ## Pruning feature
 
@@ -63,11 +63,11 @@ here on GitLab at the following address [address goes here]. Once downloaded, yo
 	1. Make sure that you have Maven installed. If that is not the case, you can download the latest version from the [Maven website](https://maven.apache.org/). 
 	2. Clone this repository to your local folder
 	3. Modify the sources as needed
-	4. Run the software using either your IDE or generate your compiled JAR, containing all the required dependencies in one package,  with the following command: `mvn clean compile assembly:single`. For more instructions on the precise usage, the next section could be helpful. 
+	4. Run the software using either your IDE or generate your compiled JAR, containing all the required dependencies in one package,  with the following command run in the project's root folder: `mvn clean compile assembly:single`. For more instructions on the precise usage, the next section could be helpful. 
 
 ## Usage
 
-The software is a command line application that requires as input a data set. If no options are applied, the software, once launched, will prompt the user to enter a CSV data set from STDIN. The input format from STDIN can be changed using the associated parameter. In general, the following options are available: 
+The software is a command line application that requires as input a data set. If no options are applied, the software, once launched, will prompt the user to enter a CSV data set from STDIN. The input format from STDIN can be changed using the associated parameter. While using STDIN, the input can span multiple line and should terminated accordingly (it is OS dependent). In general, the following options are available: 
 
 ```
 usage: customj48
@@ -97,6 +97,8 @@ The `-i` option specifies the input format in case of STDIN. The available optio
 The `-p` option enables the custom pruning feature described in the [pruning section](#pruning-feature). 
 
 The `-r` option enables the custom empty string replacement as explained in the [string replacement section](#empty-string-replacement).
+
+The `-v` option prints the current version of the software, take directly from the project's POM file. 
 
 For example, we can use one of the data sets provided in the example folder and the compiled jar to test the creation of the tree running the following command from the project's root folder:
 

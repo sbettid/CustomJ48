@@ -595,15 +595,18 @@ public class CustomJ48Tree extends J48 {
 		// Get the model and the data at the current node
 		ClassifierSplitModel localModel = currentNode.getLocalModel();
 		Instances trainingData = currentNode.getTrainingData();
-
+		
+		boolean secondExport = false;
+		
 		for (int i = 0; i < sons.length; i++) { // export each son and corresponding subtree
 
 			double nInstances = sons[i].getLocalModel().distribution().total(); // get the number of instances at the
 																				// node
 
 			if (!pruning || nInstances > 0) { // if we are pruning we check the number of instances in the subtree
-
-				text.append(i > 0 ? ",{" : "{");
+				
+				text.append(secondExport ? ",{" : "{");
+				secondExport = true;
 				String tempLabel = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
 				
 				if(replace)
