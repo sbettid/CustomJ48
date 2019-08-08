@@ -330,7 +330,7 @@ public class CustomJ48Tree extends J48 {
 		
 		if(replace) { //if we are replacing
 			
-			labelText = replace_underscore(labelText); //get the resulting label from the replacing function
+			labelText = replace_underscore(labelText, false); //get the resulting label from the replacing function
 		}
 			
 		// Writing edge between current node and its son
@@ -477,7 +477,7 @@ public class CustomJ48Tree extends J48 {
 					String labelText = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim()));
 					
 					if(replace)
-						labelText = replace_underscore(labelText);
+						labelText = replace_underscore(labelText, false);
 				
 					text.append("N" + parentId + "->" + "N" + id + " [label=\""
 							+ labelText + "\"]\n");
@@ -610,7 +610,7 @@ public class CustomJ48Tree extends J48 {
 				String tempLabel = Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim());
 				
 				if(replace)
-					tempLabel = replace_underscore(tempLabel);
+					tempLabel = replace_underscore(tempLabel, true);
 				
 				String edgeLabel = tempLabel.replaceAll("^= ", "");
 
@@ -647,11 +647,15 @@ public class CustomJ48Tree extends J48 {
 	 * @param text text we would like to replace
 	 * @return the replaced text
 	 */
-	private String replace_underscore(String text) {
+	private String replace_underscore(String text, boolean json) {
 		String result = text;
 		
-		if(result.equals("= _") )
-			result = " = ";
+		if(result.equals("= _") ) {
+			if(json)
+				result = "empty value";
+			else
+				result = "=";
+		}
 		
 		return result;
 	}
