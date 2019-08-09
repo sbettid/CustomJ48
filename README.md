@@ -2,7 +2,7 @@
 
 Custom J48 is an extension of the J48 class of the [Weka library](https://www.cs.waikato.ac.nz/ml/weka/) part of a Bachelor thesis project regarding the creation of chatbots. J48 is a java implementation of the C4.5 machine learning algorithm.
 
-The goal of this extension was to add the ability to export the generated decision trees in multiple formats, used then for the creation of a chatbot application, adding also a pruning ability and the possibility to use the empty string as a concrete value.
+The goal of this extension is to add the ability to export the generated decision trees in multiple formats, used then for the creation of a chatbot application, adding also a pruning ability and the possibility to use the empty string as a concrete value.
 
 ## Export formats
 
@@ -28,7 +28,7 @@ Trees generated using the J48 class can be exported in two different formats:
 	}
 ```
 
-The tree is specified in a recursive way, where each node, except the leafs, contains the list of      its children nodes. Moreover, every node has a label attribute specifying the attribute used to split the data at the given point. All nodes (except the root) have an edgeLabel property, which represents the label of the edge from the parent node.
+The tree is specified in a recursive way, where each node, except the leafs, contains the list of its children nodes. Moreover, every node has a label attribute specifying the attribute used to split the data at the given point. All nodes (except the root) have an edgeLabel property, which represents the label of the edge from the parent node. Furthermore, if the original tree contains empty strings, these will be replaced by the "empty value" label, please check out the [correspondent section](#empty-string-replacement) for more.
 
 Trees exported using the described JSON format can be used directly as input of the chatbot interpreter, the second software part of the Bachelor Thesis, that can be found [at this address](https://gitlab.inf.unibz.it/Davide.Sbetti/bot_interpreter). 
 
@@ -38,17 +38,17 @@ Independently from the chosen export format, it is possible to activate the prun
 
 ## Pruning feature
 
-In the scope of our project, the pruning capability was necessary because the algorithm, given an attribute, adds an edge labelled with any value that it is able to find for the given attribute in the whole data set, although possibly no instances reach that node, an intended behaviour used by C4.5 to avoid overfitting. 
+In the scope of our project, the pruning capability was necessary because the algorithm, given an attribute, adds an edge labeled with any value that it is able to find for the given attribute in the whole data set, although possibly no instances reach that node, an intended behaviour used by C4.5 to avoid overfitting. 
 
 However, in our chatbot creation case, we assumed that the data set contains all possible legal combinations and therefore, such branches, were not desired and would have led to a misleading tree. For this reason, the different export functions that were encoded allow a parameter that enables the pruning of branches reached by no instances as soon as they are discovered.
 
 ## Empty string replacement
 
-Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. This clearly applies only in case of CSV files, since the ARFF format enforce the declaration of all possible values for categorical attributes and the empty string is not allowed.  
+Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. This clearly applies only in case of CSV files, since the ARFF format enforce the declaration of all possible values, for categorical attributes, and the empty string is not allowed.  
 
 In fact, when encountering an instance with a missing value, Weka splits it making it a fractional instance of every possible value available for the attribute, which is clearly different than having an empty string as an independent value. 
 
-Our implementation pre-processes the data set, replacing every empty string (also strings made up by only spaces) with the underscore character. A standard decision tree is then created and, while exporting, the underscores are then replaced back with the empty string.
+Our implementation pre-processes the data set, replacing every empty string (also strings made up by only spaces) with the underscore character. A standard decision tree is then created and, while exporting, the underscores are then replaced back with the empty string, in case of the DOT format, or with the "empty value" string, in case of JSON. This difference is needed because the framework used to build the chatbot application, related with this software, does not allow empty strings as options for categorical questions.
 
 Please note how, when this option is active and an attribute that already has a single underscore as value is encountered, the application will throw an exception. Moreover, in order to apply the pre-process of the data set, this should be encoded in the UTF-8 format.
 
