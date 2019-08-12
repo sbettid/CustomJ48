@@ -2,6 +2,7 @@ package inf.unibz.it.CustomJ48;
 
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -70,7 +71,7 @@ public class CustomJ48Tree extends J48 {
 	 * @throws ParserConfigurationException  For misconfiguration
 	 * @throws TransformerException  If the XML Transformer is not able to write the XML file
 	 */
-	public void exportGraphML(PrintWriter writer, boolean pruning, boolean replace) throws ParserConfigurationException, TransformerException {
+	public void exportGraphML(PrintStream writer, boolean pruning, boolean replace) throws ParserConfigurationException, TransformerException {
 
 		
 		 DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance(); //get a document factory instance
@@ -376,7 +377,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param filepath Output file path
 	 * @param pruning  Whether we would like to prune branches or not
 	 */
-	public void dotExport(PrintWriter writer, boolean pruning, boolean replace) {
+	public void dotExport(PrintStream writer, boolean pruning, boolean replace) {
 		try {
 			// Export the tree
 			StringBuffer exportResult = dotExport(pruning, replace);
@@ -428,6 +429,7 @@ public class CustomJ48Tree extends J48 {
 		} else {
 			
 			String nodeLab = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(model.leftSide(m_root.getTrainingData())));
+			
 			// if it is not a leaf, we append the node and its information
 			text.append("N0 [label=\"" + nodeLab + "\" ");
 			if (m_root.getTrainingData() != null && m_root.getTrainingData().numInstances() > 0) {
@@ -488,6 +490,7 @@ public class CustomJ48Tree extends J48 {
 					
 					String nodeLab = StringEscapeUtils.escapeHtml4(Utils.backQuoteChars(localModel.dumpLabel(i, trainingData)));
 					
+					
 					// If it is a leaf after writing its information we are done
 					text.append("N" + id + " [label=\"" + nodeLab
 							+ "\" " + "shape=box style=filled ");
@@ -536,7 +539,7 @@ public class CustomJ48Tree extends J48 {
 	 * @param pruning  Whether we would like to prune subtrees
 	 * @throws Exception If something goes wrong
 	 */
-	public void JSONExport(PrintWriter writer, boolean pruning, boolean replace) {
+	public void JSONExport(PrintStream writer, boolean pruning, boolean replace) {
 
 		try {
 			StringBuffer text = new StringBuffer();

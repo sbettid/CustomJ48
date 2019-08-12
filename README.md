@@ -130,6 +130,12 @@ which is the DOT representation of the following tree:
 
 ![Graphical tree representation](datasets/tree_test.jpg)
 
+### Note on character encoding
+
+When reading from STDIN or when the empty string replacement is applied, the "UTF-8" encoding is applied. However, depending on your platform's settings, the output could differ, for some characters, from your expectations. In this case, just make sure the Java VM is started with the "UTF-8" encoding, using the `-Dfile.encoding=utf-8` command line option:
+
+  `java -Dfile.encoding=utf-8 -jar jar/customj48.jar -d data sets/weather.norminal.arff`
+
 ## License
 
 This software is distributed under the GPL v3.0 license, the complete text can be found in the [LICENSE](LICENSE) file.

@@ -1,11 +1,14 @@
 package inf.unibz.it.CustomJ48;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.Scanner;
@@ -106,12 +109,12 @@ public class CustomJ48 {
 			}
 
 			// Let's define the printwriter instance, console or file?
-			PrintWriter writer;
+			PrintStream writer;
 
 			if (line.hasOption("f")) {
-				writer = new PrintWriter(line.getOptionValue("f"));
+				writer = new PrintStream(line.getOptionValue("f"), "UTF-8");
 			} else {
-				writer = new PrintWriter(System.out);
+				writer = new PrintStream(System.out, true, "UTF-8");
 
 			}
 
@@ -243,11 +246,12 @@ public class CustomJ48 {
 	 * @param replaceEmptyStrings are we replacing underscores
 	 * @return the data set as string
 	 * @throws ParseException if there is already a single underscore as attribute
+	 * @throws IOException 
 	 */
-	private static String read(InputStream in, boolean replaceEmptyStrings, boolean isFile) throws ParseException {
+	private static String read(InputStream in, boolean replaceEmptyStrings, boolean isFile) throws ParseException, IOException {
 
 		// Read and replace the content of the dataset
-		Scanner myScanner = new Scanner(in, "utf-8");
+		BufferedReader myScanner = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 		String newFile = "";
 		int lineNumber = 0;
 		
@@ -255,13 +259,14 @@ public class CustomJ48 {
 		Matcher m = p.matcher("");  //create empty matcher so we can reuse the same without creating different objects, 
 		//less memory is so used
 		
-		if(!isFile) //show message only for STDIN input
-			System.out.print("Insert your " + format.toString() + " data set:");
+//		if(!isFile) //show message only for STDIN input
+//			System.out.print("Insert your " + format.toString() + " data set:");
 		
-		while (myScanner.hasNextLine()) { //while we have another line
+		String fileLine = myScanner.readLine();
+		while (fileLine != null) { //while we have another line
 
 			lineNumber++;
-			String fileLine = myScanner.nextLine().replaceAll("\\s*,\\s*", ",").trim(); // remove trailing and leading
+			fileLine = fileLine.replaceAll("\\s*,\\s*", ",").trim(); // remove trailing and leading
 																						// spaces
 			if(replaceEmptyStrings) { //if we are replacing 
 				m = m.reset(fileLine); //set the matcher to the current line
@@ -272,6 +277,8 @@ public class CustomJ48 {
 				newFile += fileLine.replaceAll(",,", ",_,") + "\n"; // otherwise replace empty strings with underscore
 			} else
 				newFile += fileLine + "\n"; //add it to content
+			
+			fileLine = myScanner.readLine();
 		}
 		
 		myScanner.close();
