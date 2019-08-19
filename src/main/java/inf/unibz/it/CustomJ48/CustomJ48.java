@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.LogManager;
@@ -147,7 +150,7 @@ public class CustomJ48 {
 				if (line.hasOption("r") && !DataSource.isArff(path)) { //if the user wants replace and file is CSV
 					replace = true;
 					
-					String dataSet = read(new FileInputStream(new File(path)), replace, true); //read and replace
+					String dataSet = read(new FileInputStream(path), replace, true); //read and replace
 
 					data = getInstancesFromCSV(dataSet);
 				
@@ -165,6 +168,8 @@ public class CustomJ48 {
 				
 				if(line.hasOption("r") && format.equals(InputFormat.CSV)) //if user wants replace and file is CSV
 					replace = true;
+				
+				System.err.println("Input your data set:"); //print message to the user on a different stream so we don't intefere in case of piping
 				
 				String dataSet = read(System.in, replace, false); //get dataset from function
 				
@@ -238,6 +243,7 @@ public class CustomJ48 {
 		System.exit(0);
 
 	}
+
 	
 	/**
 	 * Function used to read a data set from STDIN or from a file (replacing underscores)
@@ -252,6 +258,7 @@ public class CustomJ48 {
 
 		// Read and replace the content of the dataset
 		BufferedReader myScanner = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		
 		String newFile = "";
 		int lineNumber = 0;
 		
@@ -259,8 +266,6 @@ public class CustomJ48 {
 		Matcher m = p.matcher("");  //create empty matcher so we can reuse the same without creating different objects, 
 		//less memory is so used
 		
-//		if(!isFile) //show message only for STDIN input
-//			System.out.print("Insert your " + format.toString() + " data set:");
 		
 		String fileLine = myScanner.readLine();
 		while (fileLine != null) { //while we have another line

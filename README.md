@@ -34,7 +34,7 @@ Trees exported using the described JSON format can be used directly as input of 
 
 Independently from the chosen export format, it is possible to activate the pruning and empty string capabilities.
 
-**Note**: an extra export format is available: GraphML. However, the format does not specify the graphical specification of the graph by default. We added the graphical specification of the yED editor, accessible also freely online, but due to the instability in the interpretation of the format, this possibility is not mentioned in the standard documentation. Nevertheless, if you would like to use it, just use 'graphml' as export format for the '-e' option, see the [Usage section](#usage) for more. We cannot guarantee the interpretation will be the intended one. 
+**Note**: an extra export format is available but officially unsupported: GraphML. The format is XML based and allows the representation of graphs but, unfortunately, it does not specify the graphical specification of the graphs by default. We added the graphical specification of the yED editor, accessible also freely online, but due to the instability in the interpretation of the format, this possibility is not mentioned in the standard documentation. Nevertheless, if you would like to use it, just use 'graphml' as export format for the '-e' option, see the [Usage section](#usage) for more. 
 
 ## Pruning feature
 
