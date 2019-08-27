@@ -202,15 +202,16 @@ public class CustomJ48 {
 				data.setClassIndex(data.numAttributes() - 1);
 
 			// Creating the tree object
-
+			
 			CustomJ48Tree tree = new CustomJ48Tree();
 
 			// Setting options
 
-			String[] treeOptions = weka.core.Utils.splitOptions("-M 1 -U");
+			String[] treeOptions = weka.core.Utils.splitOptions("-M 1 -U -O");
 			tree.setOptions(treeOptions);
 
 			tree.buildClassifier(data); // Build the tree
+			
 
 			// Export it according to user's options
 			switch (export) {
