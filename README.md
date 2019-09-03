@@ -38,13 +38,14 @@ Independently from the chosen export format, it is possible to activate the prun
 
 ## Pruning feature
 
-In the scope of our project, the pruning capability was necessary because the algorithm, given an attribute, adds an edge labeled with any value that it is able to find for the given attribute in the whole data set, although possibly no instances reach that node, an intended behaviour used by C4.5 to avoid overfitting. 
+In the scope of our project, the pruning capability was necessary because the algorithm, given an attribute, adds an edge labeled with every value that it is able to find for the given attribute in the whole data set, although possibly no instances reach that node, an intended behaviour used by C4.5 to avoid overfitting, a phenomenon that consists in a tight adaptation of the model to the training data and that makes difficult to correctly
+predict unseen instances. 
 
-However, in our chatbot creation case, we assumed that the data set contains all possible legal combinations and therefore, such branches, were not desired and would have led to a misleading tree. For this reason, the different export functions that were encoded allow a parameter that enables the pruning of branches reached by no instances as soon as they are discovered.
+However, in our chatbot creation case, we assumed that the data set contains all possible legal combinations and therefore branches reached by no instances are not desired and would only result in a tree unsuitable for our purposes. For this reason, the different export functions that were encoded allow a parameter that enables the pruning of branches reached by no instances as soon as they are discovered.
 
 ## Empty string replacement
 
-Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a misleading tree. This clearly applies only in case of CSV files, since the ARFF format enforce the declaration of all possible values, for categorical attributes, and the empty string is not allowed.  
+Another aspect we had to consider, in our project, was the usage of the empty string in a CSV data set. Weka usually considers the empty string the same as a question mark, which is used to represent missing values. In our case, the empty string was an actual value and its interpretation as missing value would have led to a tree unsuitable for our purposes. This clearly applies only in case of CSV files, since the ARFF format enforce the declaration of all possible values, for categorical attributes, and the empty string is not allowed.  
 
 In fact, when encountering an instance with a missing value, Weka splits it making it a fractional instance of every possible value available for the attribute, which is clearly different than having an empty string as an independent value. 
 
@@ -102,7 +103,7 @@ The `-v` option prints the current version of the software, take directly from t
 
 For example, we can use one of the data sets provided in the example folder and the compiled jar to test the creation of the tree running the following command from the project's root folder:
 
-`java -jar jar/customj48.jar -d data sets/weather.norminal.arff`
+`java -jar jar/customj48.jar -d data sets/weather.nominal.arff`
 
 We will obtain the following exported tree
 
@@ -134,7 +135,7 @@ which is the DOT representation of the following tree:
 
 When reading from STDIN or when the empty string replacement is applied, the "UTF-8" encoding is applied. However, depending on your platform's settings, the output could differ, for some characters, from your expectations. In this case, just make sure the Java VM is started with the "UTF-8" encoding, using the `-Dfile.encoding=utf-8` command line option:
 
-  `java -Dfile.encoding=utf-8 -jar jar/customj48.jar -d data sets/weather.norminal.arff`
+  `java -Dfile.encoding=utf-8 -jar jar/customj48.jar -d data sets/weather.nominal.arff`
 
 ## License
 

@@ -2,19 +2,13 @@ package inf.unibz.it.CustomJ48;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,7 +47,7 @@ public class CustomJ48 {
 	public static void main(String[] args) {
 
 		LogManager.getLogManager().reset(); // Prevent the system from continuously writing logs to the console
-
+	     
 		// Since it is a console application let's prepare the options that require an
 		// argument
 		// We need the user to specify the path of the dataset
@@ -225,8 +219,11 @@ public class CustomJ48 {
 			default:
 				tree.dotExport(writer, pruning, replace);
 				break;
-
+			
+				
+				
 			}
+			
 
 		} catch (ParseException e) {
 
