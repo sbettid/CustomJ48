@@ -57,17 +57,17 @@ public class CustomJ48 {
 		// Let's create the option to use a file instead the console stream for the
 		// export code
 		Option fileStream = Option.builder("f").argName("file").hasArg()
-				.desc("Output the export code to the given file").build();
+				.desc("Outputs the export code to the given file").build();
 
 		// The 'e' option allows the user to decide the export format (graphml, dot and
 		// json), default is dot
 		Option exportFormat = Option.builder("e").argName("format").hasArg()
-				.desc("specify the export format (dot, json). Default is: dot").build();
+				.desc("Specifies the export format (dot, json). Default is: dot").build();
 
 		// The 'e' option allows the user to decide the export format (graphml, dot and
 		// json), default is dot
 		Option inputFormat = Option.builder("i").argName("format").hasArg()
-				.desc("input format for STDIN data set input (csv, arff). Default is: csv").build();
+				.desc("Input format for STDIN data set input (csv, arff). Default is: csv").build();
 
 		// And now add them to the options array with the boolean ones (flags)
 		Options options = new Options();
@@ -75,8 +75,8 @@ public class CustomJ48 {
 		options.addOption(fileStream);
 		options.addOption(exportFormat);
 		options.addOption(inputFormat);
-		options.addOption("p", "Enable the pruning feature"); // Enable or no the pruning feature?
-		options.addOption("r", "Replace empty strings (with _) to make them actual values"); // replace empty string
+		options.addOption("p", "Enables the pruning feature"); // Enable or no the pruning feature?
+		options.addOption("r", "Replaces empty strings (with _) to make them actual values"); // replace empty string
 																								// with a value
 		options.addOption("h", "Prints this help message"); // print the help message
 		options.addOption("v", "Prints the software version"); // print software version
